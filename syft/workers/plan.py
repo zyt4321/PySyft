@@ -217,3 +217,34 @@ class Plan(BaseWorker):
 
     def send(self, location):
         return sy.local_worker.send(obj=self, workers=location)
+
+    @property
+    def plan_graph(self):
+        compressed_plan = list()
+
+        for entry in self.readable_plan:
+
+            head = entry[1][1]
+            if entry[1][0] == 1:
+                head = head[1]
+
+                # put the output in this id
+                output_id = head[1]
+
+                sub_head = head[0][1]
+
+                command = sub_head[0]
+
+                list_of_inputs = sub_head[2:]
+
+                self_id = sub_head[1][1][1]
+
+                param_ids = list()
+                for param in list_of_inputs:
+                    print(param)
+                    param_ids.append(param[1][0][1][1])
+
+                mini_plan_entry = (command, self_id, param_ids[0], output_id)
+
+                compressed_plan.append(mini_plan_entry)
+        return compressed_plan

@@ -1,4 +1,5 @@
 import syft as sy
+import torch as th
 import random
 from .plan import Plan
 
@@ -30,15 +31,15 @@ def func2plan(*dummy_args):
         args = list(dummy_args)
 
         plan = Plan(hook=sy.local_worker.hook, owner=sy.local_worker, id=random.randint(0, 1e10))
-
         # The ids of args of the first call, which should be updated when
         # the function is called with new args
         arg_ids = list()
 
         for i in range(len(args)):
-            args[i] = args[i].send(plan)
-            args[i].child.garbage_collect_data = False
-            arg_ids.append(args[i].id_at_location)
+            if isinstance(args[i], th.Tensor):
+                args[i] = args[i].send(plan)
+                args[i].child.garbage_collect_data = False
+                arg_ids.append(args[i].id_at_location)
 
         plan.arg_ids = arg_ids
 
