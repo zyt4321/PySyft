@@ -719,6 +719,22 @@ class BaseWorker(AbstractWorker):
         shape = self.send_msg(MSGTYPE.GET_SHAPE, pointer, location=pointer.location)
         return sy.hook.torch.Size(shape)
 
+    def fetch_plan(self, plan_id):
+        """fetch a COPY of a plan from the worker registry
+        """
+        print(self._objects)
+
+        if plan_id not in self._objects:
+            return None
+
+        candidate = self._objects[plan_id]
+        if isinstance(candidate, sy.Plan):
+            plan = candidate.copy()
+            return plan
+        return None
+
+
+
     def search(self, *query):
         """Search for a match between the query terms and the tensor's Id, Tag, or Description.
         Note that the query is an AND query meaning that every item in the list of strings (query*)
@@ -762,6 +778,7 @@ class BaseWorker(AbstractWorker):
                     ).wrap()
                     results.append(ptr)
                 else:
+                    # TODO: should we be copying in this case?
                     obj.owner = sy.local_worker
                     results.append(obj)
 
