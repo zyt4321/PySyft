@@ -1,4 +1,4 @@
-root: ./docs/docs/markdown/modules
+root: ./docs/docs/markdown/_modules
 
 structure:
     readme: ../../../../README.md
