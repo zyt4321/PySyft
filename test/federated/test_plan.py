@@ -314,7 +314,7 @@ def test_execute_plan_module_remotely(hook, start_proc):
             self.fc1 = nn.Linear(2, 3)
             self.fc2 = nn.Linear(3, 2)
 
-        @sy.method2plan
+        # @sy.method2plan
         def forward(self, x):
             x = F.relu(self.fc1(x))
             x = self.fc2(x)
@@ -464,3 +464,79 @@ def test__call__for_method(hook):
 
     # reset function
     sy.ID_PROVIDER.pop = pop_function_original
+
+
+def test_secure_evaluation_using_a_plan(hook, start_proc):
+    hook.local_worker.is_client_worker = False
+    # A Toy Model
+    class Net(th.nn.Module):
+        def __init__(self):
+            super(Net, self).__init__()
+            self.fc1 = th.nn.Linear(2, 3)
+            self.fc2 = th.nn.Linear(3, 1)
+
+        @sy.method2plan
+        def forward(self, x):
+            x = F.relu(self.fc1(x))
+            x = self.fc2(x)
+            return x
+
+    # Instatiate model
+    model = Net()
+
+    # A Toy Dataset
+    data = th.tensor([[0, 0], [0, 1], [1, 0], [1, 1.0]], requires_grad=True)
+    target = th.tensor([[0], [0], [1], [1.0]], requires_grad=True)
+
+    model.train()
+
+    def train():
+        # Training Logic
+        opt = th.optim.SGD(params=model.parameters(), lr=0.1)
+        for epoch in range(5):
+            # 1) erase previous gradients (if they exist)
+            opt.zero_grad()
+
+            # 2) make a prediction
+            pred = model(data, run_blueprint=True)
+
+            # 3) calculate how much we missed
+            loss = ((pred - target) ** 2).sum()
+
+            # 4) figure out which weights caused us to miss
+            loss.backward()
+
+            # 5) change those weights
+            opt.step()
+
+            # 6) print our progress
+            print("Epoch %d:" % (epoch + 1), loss.data)
+
+    train()
+
+    local_res = model(data)
+    model.eval()
+
+    for param in model.parameters():
+        param.requires_grad = False
+
+    model.fix_precision()
+    print([p for p in model.parameters()])
+
+    kwargs = {"id": "test_plan_worker_3", "host": "localhost", "port": 8799, "hook": hook}
+    server = start_proc(WebsocketServerWorker, **kwargs)
+
+    time.sleep(0.1)
+    socket_pipe = WebsocketClientWorker(**kwargs)
+
+    plan_ptr = model.send(socket_pipe)
+    x_ptr = data.fix_precision().send(socket_pipe)
+    remote_res = plan_ptr(x_ptr).get()
+
+    assert (remote_res == local_res).all()
+
+    # delete remote object before websocket connection termination
+    del x_ptr
+
+    server.terminate()
+    hook.local_worker.is_client_worker = True

@@ -340,7 +340,11 @@ class TorchHook:
         def data(self):
 
             if hasattr(self, "child"):
-                to_return = self.child.attr("data")
+                if hasattr(self.child, "attr"):
+                    to_return = self.child.attr("data")
+                else:
+                    to_return = self.child.child
+                    # print(to_return.child, '))))))))))')
             else:
 
                 to_return = self.native_param_data
@@ -380,10 +384,13 @@ class TorchHook:
         def grad(self):
 
             if hasattr(self, "child"):
-                to_return = self.child.attr("grad")
-                if isinstance(to_return.child, syft.PointerTensor):
-                    if to_return.child.is_none():
-                        to_return = None
+                if hasattr(self.child, "attr"):
+                    to_return = self.child.attr("grad")
+                    if isinstance(to_return.child, syft.PointerTensor):
+                        if to_return.child.is_none():
+                            to_return = None
+                else:
+                    to_return = None
 
             else:
                 to_return = self.native_param_grad
@@ -956,8 +963,8 @@ class TorchHook:
         def module_send_(nn_self, dest, force_send=False, **kwargs):
             """Overloads torch.nn instances so that they could be sent to other workers"""
 
-            if module_is_missing_grad(nn_self):
-                create_grad_objects(nn_self)
+            # if module_is_missing_grad(nn_self):
+            #    create_grad_objects(nn_self)
 
             for p in nn_self.parameters():
                 p.send_(dest)

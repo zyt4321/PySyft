@@ -352,7 +352,13 @@ class Plan(ObjectStorage):
             The pointer to the result of the execution if the plan was already sent,
             else the None message serialized.
         """
+        # Support for method hooked in plans
+        if self.is_method:
+            args = [self._self] + list(args)
+
         if len(kwargs):
+            if len(kwargs) == 1 and "run_blueprint" in kwargs and self.blueprint:
+                return self.blueprint(*args)
             raise ValueError("Kwargs are not supported for plan.")
 
         # TODO: for now only one value is returned from a plan
@@ -362,10 +368,6 @@ class Plan(ObjectStorage):
         # of methods.
         if self.is_method and not self.locations and self.owner == sy.hook.local_worker:
             self._self.send(sy.hook.local_worker, force_send=True)
-
-        # Support for method hooked in plans
-        if self.is_method:
-            args = [self._self] + list(args)
 
         plan_res = self.execute_plan(args, result_ids)
 
