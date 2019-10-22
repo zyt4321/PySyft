@@ -8,8 +8,6 @@ from torch.distributions import Laplace
 import syft as sy
 import torch as th
 
-
-
 def min_tensor(*tensors):
     tensors = list(tensors)
     for i in range(len(tensors)):
