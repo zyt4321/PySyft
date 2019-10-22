@@ -14,6 +14,7 @@ from syft.frameworks.torch.tensors.interpreters.crt_precision import _moduli_for
 from syft.generic.frameworks.types import FrameworkTensor
 from syft.generic.tensor import AbstractTensor
 from syft.generic.pointers.pointer_tensor import PointerTensor
+from syft.frameworks.torch.tensors.decorators.sensitivity import SensitivityTensor
 from syft.workers.base import BaseWorker
 
 from syft.exceptions import PureFrameworkTensorFoundError
@@ -812,3 +813,40 @@ class TorchTensor(AbstractTensor):
         ps.append(self)
 
         return syft.combine_pointers(*ps)
+
+    def private(self, *args, **kwargs):
+        return SensitivityTensor(*args, **kwargs).on(self)
+
+    def public_private(self, accountant, *args, **kwargs):
+        el = torch.zeros(self.shape + (accountant.n_entities,))
+        eh = el + 0
+        return SensitivityTensor(accountant, self, self, el, eh, **kwargs).on(self)
+
+    def publish(self, *args, **kwargs):
+        return self.child.publish(*args, **kwargs)
+
+    def z_score(self, std=None, mean=None, *args, **kwargs):
+
+        if(hasattr(self, 'child')):
+
+            return self.child.z_score(std=std, mean=mean, *args, **kwargs)
+        else:
+
+            if (std is None):
+                std = (self.std(0).unsqueeze(0).expand(self.shape))
+
+            if mean is None:
+                mean = self.mean(0).unsqueeze(0).expand(self.shape)
+
+            std_den = 1 / std
+            num = self - mean
+
+            return (num * std_den)
+
+    def std(self, dim=0):
+
+        return ((self - (self.mean(dim).unsqueeze(dim).expand(self.shape))) ** 2).mean(dim).sqrt()
+
+    @property
+    def sensitivity(self):
+        return self.child.sensitivity
