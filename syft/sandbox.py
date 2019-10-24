@@ -4,6 +4,8 @@ from syft.frameworks.torch.hook.hook import TorchHook
 from syft.workers.virtual import VirtualWorker
 from syft.grid import VirtualGrid
 
+def hook(gbs):
+    return create_sandbox(gbs, verbose=False, download_data=False)
 
 def create_sandbox(gbs, verbose=True, download_data=True):
     """There's some boilerplate stuff that most people who are

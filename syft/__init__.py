@@ -44,6 +44,7 @@ from syft.grid import VirtualGrid
 
 # Import sandbox
 from syft.sandbox import create_sandbox
+from syft.sandbox import hook
 
 # Import federate learning objects
 from syft.frameworks.torch.federated import FederatedDataset, FederatedDataLoader, BaseDataset
