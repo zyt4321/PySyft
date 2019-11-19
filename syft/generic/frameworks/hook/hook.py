@@ -372,11 +372,11 @@ class FrameworkHook(ABC):
 
             if not hasattr(self, "child"):  # means that it's not a wrapper
 
-                arg = args[0]
-
                 # if self is a natural tensor but the first argument isn't,
                 # wrap self with the appropriate type and re-run
-                if len(args) > 0 and hasattr(arg, "child"):
+                if len(args) > 0 and hasattr(args[0], "child"):
+
+                    arg = args[0]
 
                     # if we allow this for PointerTensors it opens the potential
                     # that we could accidentally serialize and send a tensor in the
