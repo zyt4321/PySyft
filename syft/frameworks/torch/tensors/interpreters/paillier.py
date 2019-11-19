@@ -40,7 +40,7 @@ class PaillierTensor(AbstractTensor):
         """This method will decrypt each value in the tensor, returning a normal
         torch tensor.
 
-        =Args:
+        Args:
             *private_key a private key created using
                 syft.frameworks.torch.he.paillier.keygen()
         """
