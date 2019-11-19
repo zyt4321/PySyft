@@ -372,16 +372,18 @@ class FrameworkHook(ABC):
 
             if not hasattr(self, "child"):  # means that it's not a wrapper
 
+                arg = args[0]
+
                 # if self is a natural tensor but the first argument isn't,
                 # wrap self with the appropriate type and re-run
-                if len(args) > 0 and hasattr(args[0], "child"):
+                if len(args) > 0 and hasattr(arg, "child"):
 
                     # if we allow this for PointerTensors it opens the potential
                     # that we could accidentally serialize and send a tensor in the
                     # arguments
-                    if not isinstance(args[0].child, PointerTensor):
-                        self = type(args[0].child)().on(self, wrap=True)
-                        args = [args[0]]
+                    if not isinstance(arg.child, PointerTensor):
+                        self = type(arg.child)().on(self, wrap=True)
+                        args = [arg]
                         return overloaded_native_method(self, *args, **kwargs)
 
                 method = getattr(self, f"native_{method_name}")
