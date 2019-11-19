@@ -383,8 +383,7 @@ class FrameworkHook(ABC):
                     # arguments
                     if not isinstance(arg.child, PointerTensor):
                         self = type(arg.child)().on(self, wrap=True)
-                        args = [arg]
-                        return overloaded_native_method(self, *args, **kwargs)
+                        return overloaded_native_method(self, arg, **kwargs)
 
                 method = getattr(self, f"native_{method_name}")
                 # Run the native function with the new args
