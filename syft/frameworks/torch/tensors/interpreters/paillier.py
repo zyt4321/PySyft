@@ -156,6 +156,9 @@ class PaillierTensor(AbstractTensor):
 
         return out
 
+    def __matmul__(self, other, **kwargs):
+        return self.mm(self, other, **kwargs)
+
     # Method overloading
     @overloaded.method
     def add(self, _self, *args, **kwargs):
