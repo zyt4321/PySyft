@@ -20,20 +20,6 @@ class PaillierTensor(AbstractTensor):
         super().__init__(id=id, owner=owner, tags=tags, description=description)
         print("creating paillier tensor 2")
 
-    def encrypt(self, public_key):
-        """This method will encrypt each value in the tensor using Paillier
-        homomorphic encryption.
-
-        Args:
-            *public_key a public key created using
-                syft.frameworks.torch.he.paillier.keygen()
-        """
-
-        output = PaillierTensor()
-        output.child = self.child
-        output.encrypt_(public_key)
-        return output
-
     def encrypt_(self, public_key):
         """This method will encrypt each value in the tensor using Paillier
         homomorphic encryption.
