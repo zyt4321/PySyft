@@ -1,0 +1,3 @@
+## Tip 1: use pip install -e .
+
+When working on the codebase, instead of running "python setup.py install" every time you make a change and want to play with it, run "pip install -e ." and the installed version of the library will just be a reference to the code directory you're working on. This way, you don't have to re-install. Just run your tests (or restart your notebook) and you'll have the fresh code.
