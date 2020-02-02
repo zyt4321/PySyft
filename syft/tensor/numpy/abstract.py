@@ -78,7 +78,7 @@ def abstract_mm(x, y):
     "Implementation of np.sum for DiagonalArray objects"
     x = np.asarray(x)
     y = np.asarray(y)
-    return np.matmul(x, y)
+    return AbstractNumpyArray(np.matmul(x, y))
 
 
 @implements(np.add)
