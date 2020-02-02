@@ -1,5 +1,6 @@
 import torch as th
 
+
 class RestrictedTorchTensor(th.Tensor):
     """A tensor class which returns a NotImplementedError for all methods which you do not
     explicitly override."""

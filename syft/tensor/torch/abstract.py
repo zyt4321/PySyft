@@ -35,7 +35,7 @@ class AbstractTorchTensor(RestrictedTorchTensor):
         self.some_stuff = "more stuff"
 
     def __torch_function__(self, func, args=(), kwargs=None):
-        if(kwargs is None):
+        if kwargs is None:
             kwargs = {}
 
         if func not in HANDLED_FUNCTIONS_ABSTRACT:
@@ -49,7 +49,9 @@ class AbstractTorchTensor(RestrictedTorchTensor):
                 attr = self.__getattribute__(name)
                 self.__setattr__(name, value)
             except Exception as e:
-                raise AttributeError(f"Attribute '{name}' does not exist for tensor type {type(self)}")
+                raise AttributeError(
+                    f"Attribute '{name}' does not exist for tensor type {type(self)}"
+                )
         return self
 
     def mm(self, other):

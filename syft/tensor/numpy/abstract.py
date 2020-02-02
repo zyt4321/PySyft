@@ -4,7 +4,6 @@ HANDLED_FUNCTIONS = {}
 
 
 class AbstractNumpyArray(np.ndarray):
-
     def __new__(cls, input_array, info=None):
         print("New AbstractNumpyArray")
         obj = np.asarray(input_array).view(cls)
@@ -12,13 +11,14 @@ class AbstractNumpyArray(np.ndarray):
         return obj
 
     def __array_finalize__(self, obj):
-        if obj is None: return
-        self.info = getattr(obj, 'info', None)
+        if obj is None:
+            return
+        self.info = getattr(obj, "info", None)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         if ufunc not in HANDLED_FUNCTIONS:
             return NotImplemented
-        if method == '__call__':
+        if method == "__call__":
             return HANDLED_FUNCTIONS[ufunc](*inputs, **kwargs)
         else:
             return NotImplemented
@@ -39,26 +39,25 @@ class AbstractNumpyArray(np.ndarray):
     # Option 2: call into one's own __array_ufunc__
     def __matmul__(self, other):
         print("mm")
-        return self.__array_ufunc__(np.matmul, '__call__', self, other)
+        return self.__array_ufunc__(np.matmul, "__call__", self, other)
 
     # Option 2: call into one's own __array_ufunc__
     def matmul(self, other):
         print("mm2")
-        return self.__array_ufunc__(np.matmul, '__call__', self, other)
+        return self.__array_ufunc__(np.matmul, "__call__", self, other)
 
     # Option 2: call into one's own __array_ufunc__
     def __add__(self, other):
         print("adding")
-        return self.__array_ufunc__(np.add, '__call__', self, other)
+        return self.__array_ufunc__(np.add, "__call__", self, other)
 
     def __radd__(self, other):
         print("r adding")
-        return self.__array_ufunc__(np.add, '__call__', other, self)
+        return self.__array_ufunc__(np.add, "__call__", other, self)
 
     def __iadd__(self, other):
         print("i adding")
-        result = self.__array_ufunc__(np.add, '__call__', self, other,
-                                      out=(self,))
+        result = self.__array_ufunc__(np.add, "__call__", self, other, out=(self,))
         if result is NotImplemented:
             raise TypeError(...)
 
@@ -88,4 +87,3 @@ def mulitply(x, y):
     x = np.asarray(x)
     y = np.asarray(y)
     return AbstractNumpyArray(x + y)
-
