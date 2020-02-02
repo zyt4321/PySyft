@@ -11,11 +11,17 @@ class AbstractNumpyArray(np.ndarray):
         return obj
 
     def __array_finalize__(self, obj):
+        """this is just to propagate attributes - this method is called
+        after a method/function is run"""
+
         if obj is None:
             return
         self.info = getattr(obj, "info", None)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        """Unlike pytorch which only has one function type, numpy has two,
+        func and ufunc. This is basically __array_function__ for ufuncs."""
+
         if ufunc not in HANDLED_FUNCTIONS:
             return NotImplemented
         if method == "__call__":
@@ -24,6 +30,10 @@ class AbstractNumpyArray(np.ndarray):
             return NotImplemented
 
     def __array_function__(self, func, types, args, kwargs):
+        """This is basically the same thing as pytorch's __torch_function__
+        but it only works for one of numpy's two types of functions. To override
+        all of numpy's functions you also need to use __array_ufunc__"""
+
         print("array function")
         if func not in HANDLED_FUNCTIONS:
             return NotImplemented
