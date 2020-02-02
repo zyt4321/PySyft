@@ -91,7 +91,7 @@ def abstract_mm(x, y):
 
 
 @implements(np.add)
-def mulitply(x, y):
+def multiply(x, y):
     "Implementation of np.sum for DiagonalArray objects"
     print("np.add")
     x = np.asarray(x)
