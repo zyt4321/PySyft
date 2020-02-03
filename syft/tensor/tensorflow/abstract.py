@@ -1,9 +1,16 @@
-import random
+from syft.tensor.tensorflow import RestrictedTensor
+from syft.tensor.tensorflow import chain_method
 
 
-class AbstractTensor():
+class AbstractTensor(RestrictedTensor):
+    @chain_method
+    def __add__(self, other):
+        return self + other
 
-    def __init__(self, data):
-        self._id = random.randint(0, 10e30)
-        self.register()
-        self.data = data
+    @chain_method
+    def __sub__(self, other):
+        return self - other
+
+    @chain_method
+    def __matmul__(self, other):
+        return self @ other

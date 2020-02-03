@@ -1,11 +1,12 @@
 import tensorflow as _tf
-from syft.tensor.tensorflow.abstract import AbstractTensor
+from syft.tensor.tensorflow.restricted import RestrictedTensor
 
 object_store = {}
 
+
 @property
 def id(self):
-    if (hasattr(self, "_id")):
+    if hasattr(self, "_id"):
         return self._id
     return hash(self.experimental_ref())
 
@@ -35,7 +36,7 @@ def register(self):
 def on(self, tensor_type, *args, **kwargs):
     child = tensor_type(self, *args, **kwargs)
 
-    if (self.child is not None):
+    if self.child is not None:
         grandchild = self.child
         child.set_attr("child", grandchild)
 
@@ -56,7 +57,7 @@ objects = list()
 objects.append(_tf.Tensor)
 objects.append(_tf.Variable)
 objects.append(_tf.ResourceVariable)
-objects.append(AbstractTensor)
+objects.append(RestrictedTensor)
 
 for obj in objects:
     for method_name, method in methods:
