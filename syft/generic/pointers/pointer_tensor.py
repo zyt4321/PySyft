@@ -258,6 +258,18 @@ class PointerTensor(ObjectPointer, AbstractTensor):
         return ptr
 
     def move(self, location):
+        obj_to_move = self.location[self.id_at_location]
+        is_promise = 'PromiseTensor' in str(self.location[self.id_at_location])
+        print('ptr tensor.move',obj_to_move, obj_to_move.owner, is_promise)
+
+        if is_promise:
+            print('location', location, obj_to_move.owner)
+            promise_tensor = obj_to_move.owner.promise_tensor().FloatTensor() #syft.Promise.FloatTensor(shape =(3,3))
+            print('new_promise', promise_tensor)
+            new_ptr = promise_tensor.send(location)
+            print('new_ptr', new_ptr)
+            return new_ptr
+
         ptr = self.owner.send(self, location)
         ptr.remote_get()
         # don't want it to accidentally delete the remote object

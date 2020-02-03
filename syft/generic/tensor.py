@@ -16,8 +16,12 @@ class AbstractTensor(AbstractObject):
         tags: List[str] = None,
         description: str = None,
         child=None,
+        # is_promise=False,
     ):
         super(AbstractTensor, self).__init__(id, owner, tags, description, child)
+        # print('generic.tensor', is_promise)
+        # self.is_promise=is_promise
+        # print('generic.tensor is_promise', self.is_promise)
 
     def wrap(self, register=True, type=None, **kwargs):
         """Wraps the class inside an empty object of class `type`.
@@ -41,6 +45,7 @@ class AbstractTensor(AbstractObject):
         wrapper.child = self
         wrapper.is_wrapper = True
         wrapper.child.parent = weakref.ref(wrapper)
+        # wrapper._is_promise = self.is_promise
 
         if self.id is None:
             self.id = sy.ID_PROVIDER.pop()

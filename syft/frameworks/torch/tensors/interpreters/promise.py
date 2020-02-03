@@ -33,17 +33,23 @@ class PromiseTensor(AbstractTensor, Promise):
             print("owner is None")
             owner = sy.local_worker
 
-        # constructors for AbstractTensor and Promise
-        AbstractTensor.__init__(self, id=id, owner=owner, tags=tags, description=description)
-        Promise.__init__(self, owner=owner, obj_type=tensor_type, plans=plans)
+        self._shape = shape
 
+        # constructors for AbstractTensor and Promise
+        AbstractTensor.__init__(self, id=id, owner=owner, tags=tags, description=description) #, is_promise=True
+        Promise.__init__(self, owner=owner, obj_type=tensor_type, plans=plans)
         del self.child
 
     def torch_type(self):
         return self.obj_type
 
+    @staticmethod
+    def move(self):
+        print('moving promise tensor')
+
     @property
     def shape(self):
+        print(49, 'ter-promise prints shape', self._shape)
         return self._shape
 
     @property
@@ -55,8 +61,7 @@ class PromiseTensor(AbstractTensor, Promise):
         # return self._grad
 
     def __str__(self):
-        print(60, self.obj_type)
-        return f"[PromiseTensor({self.owner.id}:{self.id}) -future-> {self.obj_type.split('.')[-1]} -blocking-> {len(self.plans)} plans]"
+        return f"[PromiseTensor({self.owner.id}:{self.id}) -future-> type: {self.obj_type.split('.')[-1] if self.obj_type else None} -blocking-> plans: {len(self.plans) if self.plans else None} plans]"
 
     def __repr__(self):
         return self.__str__()

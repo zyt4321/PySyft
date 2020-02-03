@@ -366,6 +366,11 @@ class TorchTensor(AbstractTensor):
         no_wrap=False,
         garbage_collect_data=True,
     ):
+
+
+        print('native send', self, *location)
+        is_promise = 'PromiseTensor' in str(self)
+
         """Gets the pointer to a new remote object.
 
         One of the most commonly used methods in PySyft, this method serializes
@@ -387,10 +392,14 @@ class TorchTensor(AbstractTensor):
         Returns:
             A torch.Tensor[PointerTensor] pointer to self. Note that this
             object will likely be wrapped by a torch.Tensor wrapper.
-        
+
         Raises:
                 SendNotPermittedError: Raised if send is not permitted on this tensor.
         """
+
+        # if is_promise:
+
+        #     return
 
         if not self.allow(user=user):
             raise SendNotPermittedError()
@@ -410,13 +419,24 @@ class TorchTensor(AbstractTensor):
                 if self._is_parameter():
                     self.data.child.garbage_collect_data = False
 
-            ptr = self.owner.send(
-                self,
-                location,
-                local_autograd=local_autograd,
-                preinitialize_grad=preinitialize_grad,
-                garbage_collect_data=garbage_collect_data,
-            )
+            print('native, self.owner', self.owner, hasattr(self, 'location'))
+            if is_promise and hasattr(self, 'location'):
+                print('location send')
+                ptr = self.location.send(
+                    self,
+                    location,
+                    local_autograd=local_autograd,
+                    preinitialize_grad=preinitialize_grad,
+                    garbage_collect_data=garbage_collect_data,
+                )
+            else:
+                ptr = self.owner.send(
+                    self,
+                    location,
+                    local_autograd=local_autograd,
+                    preinitialize_grad=preinitialize_grad,
+                    garbage_collect_data=garbage_collect_data,
+                )
 
             ptr.description = self.description
             ptr.tags = self.tags
@@ -613,10 +633,10 @@ class TorchTensor(AbstractTensor):
 
     def allow(self, user=None) -> bool:
         """ This function returns will return True if it isn't a PrivateTensor, otherwise it will return the result of PrivateTensor's allow method.
-            
+
             Args:
                 user (object,optional): User crendentials to be verified.
-            
+
             Returns:
                 boolean: If it is a public tensor/ allowed user, returns true, otherwise it returns false.
         """
@@ -638,11 +658,15 @@ class TorchTensor(AbstractTensor):
         return True
 
     def move(self, location):
+        # print('terp move child',self.child, self.child.id_at_location)
         self.child = self.child.move(location)
+        # print('terp move owner objs', self.child.owner._objects)
+        # print('terp move actual obj', self.child.owner._objects[self.child.id_at_location])
         # We get the owner from self.child because the owner of a wrapper is
         # not reliable and sometimes end up being the syft.local_worker
         self.child.owner.register_obj(self)
         return self
+
 
     def remote_send(self, location, change_location=False):
         self.child.remote_send(location, change_location)

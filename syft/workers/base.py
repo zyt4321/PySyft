@@ -401,6 +401,13 @@ class BaseWorker(AbstractWorker, ObjectStorage):
 
         return pointer
 
+    # def extend(
+    #     self,
+    #     obj: Union[FrameworkTensorType, AbstractTensor],
+    #     workers: "BaseWorker",):
+
+    #     print('extending', workers)
+
     def execute_command(self, message: tuple) -> PointerTensor:
         """
         Executes commands received from other workers.
