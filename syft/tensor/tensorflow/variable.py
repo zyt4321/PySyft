@@ -17,8 +17,6 @@ def create_new_method(method_name):
     @_tf.custom_gradient
     def _func(self, *args, **kwargs):
 
-        print("running " + str(method_name))
-
         if not self.attr("end"):
             self, args, kwargs = args2child(self, *args, **kwargs)
             result = getattr(self, method_name)(*args, **kwargs)

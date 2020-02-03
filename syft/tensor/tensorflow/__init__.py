@@ -7,6 +7,10 @@ override_funcs.add("__add__")
 override_funcs.add("__sub__")
 override_funcs.add("__mul__")
 
+from syft.tensor.tensorflow.util import chain_method
+from syft.tensor.tensorflow.restricted import RestrictedTensor
+from syft.tensor.tensorflow.abstract import AbstractTensor
+
 from tensorflow import Tensor
 from syft.tensor.tensorflow.variable import Variable
 
@@ -17,10 +21,6 @@ with _tf.GradientTape() as tape:
 
 _tf.ResourceVariable = ResourceVariable
 
-from syft.tensor.tensorflow.util import chain_method
-
-from syft.tensor.tensorflow.restricted import RestrictedTensor
-from syft.tensor.tensorflow.abstract import AbstractTensor
 from syft.tensor.tensorflow.experimental import PlusIsMinusTensor
 from syft.tensor.tensorflow.experimental import MinusIsMultiplyTensor
 
