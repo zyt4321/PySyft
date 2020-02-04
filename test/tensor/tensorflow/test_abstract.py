@@ -12,5 +12,7 @@ def test_subclass_method_type_and_values(method_name):
     out = x.__getattribute__(method_name)(x)
 
     assert isinstance(target, np.ndarray)
-    # assert isinstance(out, tf.AbstractTensor)
+    # TODO: right now the Tensor returned doesn't have any kind of
+    # correct tensor chain. Gotta fix that.
+    # assert isinstance(out.child, tf.AbstractTensor)
     assert (out.numpy() == target).all()
