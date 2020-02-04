@@ -44,6 +44,10 @@ def on(self, tensor_type, *args, **kwargs):
 
     return self
 
+def __del__(self):
+    del object_store[self.id]
+
+
 
 methods = list()
 methods.append(("id", id))
@@ -52,6 +56,7 @@ methods.append(("register", register))
 methods.append(("set_attr", set_attr))
 methods.append(("child", child))
 methods.append(("on", on))
+methods.append(("__del__", __del__))
 
 objects = list()
 objects.append(_tf.Tensor)
