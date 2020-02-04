@@ -17,7 +17,7 @@ def create_new_method(method_name):
     @_tf.custom_gradient
     def _func(self, *args, **kwargs):
 
-        if not self.attr("end"):
+        if not self.attr("end") and self.child is not None:
             self, args, kwargs = args2child(self, *args, **kwargs)
             result = getattr(self, method_name)(*args, **kwargs)
         else:

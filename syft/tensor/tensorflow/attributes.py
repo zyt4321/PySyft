@@ -24,6 +24,8 @@ def attr(self, attr_name):
 
 
 def set_attr(self, attr_name, value):
+    if self.id not in object_store:
+        object_store[self.id] = {}
     object_store[self.id][attr_name] = value
 
 
@@ -34,7 +36,9 @@ def register(self):
 
 
 def on(self, tensor_type, *args, **kwargs):
+
     child = tensor_type(self, *args, **kwargs)
+    print("new 'on' child.id:" + str(child.id))
 
     if self.child is not None:
         grandchild = self.child
@@ -44,9 +48,9 @@ def on(self, tensor_type, *args, **kwargs):
 
     return self
 
+
 def __del__(self):
     del object_store[self.id]
-
 
 
 methods = list()

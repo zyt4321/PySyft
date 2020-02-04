@@ -1,4 +1,4 @@
-from syft.tensor.numpy.abstract import AbstractNumpyArray
+from syft.tensor import tensorflow as tf
 import numpy as np
 import pytest
 
@@ -8,9 +8,9 @@ def test_subclass_method_type_and_values(method_name):
     x_ = np.array([[1, 2], [3, 4]])
     target = x_.__getattribute__(method_name)(x_)
 
-    x = AbstractNumpyArray([[1, 2], [3, 4]])
+    x = tf.Variable(x_).on(tf.AbstractTensor)
     out = x.__getattribute__(method_name)(x)
 
     assert isinstance(target, np.ndarray)
-    assert isinstance(out, AbstractNumpyArray)
-    assert (np.asarray(out) == target).all()
+    # assert isinstance(out, tf.AbstractTensor)
+    assert (out.numpy() == target).all()
