@@ -9,4 +9,4 @@ class RestrictedTensor(object):
 
     @property
     def data(self):
-        return self._data
+        return self._data()
