@@ -1,6 +1,6 @@
 import tensorflow as _tf
-from syft.tensor.tensorflow.util import args2child
-from syft.tensor.tensorflow import override_funcs
+from syft._tensorflow.tensor.util import args2child
+# from syft._tensorflow.tensor.util import override_funcs
 
 
 def Variable(*args, **kwargs):
@@ -34,5 +34,5 @@ def create_new_method(method_name):
     setattr(_tf.Variable, method_name, func)
 
 
-for method_name in override_funcs:
-    create_new_method(method_name)
+# for method_name in override_funcs:
+#     create_new_method(method_name)

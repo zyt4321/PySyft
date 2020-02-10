@@ -1,5 +1,5 @@
-from syft.tensor.tensorflow import RestrictedTensor
-from syft.tensor.tensorflow import chain_method
+from syft._tensorflow.tensor.restricted import RestrictedTensor
+from syft._tensorflow.tensor.util import chain_method
 
 
 class AbstractTensor(RestrictedTensor):

@@ -1,8 +1,7 @@
-import torch as th
-from syft.tensor import AbstractTorchTensor
+from syft.generic.tensor.abstract import AbstractSyftTensor
 
 
-class FixedPrecisionTensor(AbstractTorchTensor):
+class FixedPrecisionTensor(AbstractSyftTensor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

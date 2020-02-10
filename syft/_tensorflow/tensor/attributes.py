@@ -1,5 +1,5 @@
 import tensorflow as _tf
-from syft.tensor.tensorflow.restricted import RestrictedTensor
+from syft._tensorflow.tensor.restricted import RestrictedTensor
 
 object_store = {}
 
@@ -9,11 +9,6 @@ def id(self):
     if hasattr(self, "_id"):
         return self._id
     return hash(self.experimental_ref())
-
-
-@property
-def child(self):
-    return self.attr("child")
 
 
 def attr(self, attr_name):
@@ -33,6 +28,11 @@ def register(self):
     attrs = {}
     object_store[self.id] = attrs
     return self
+
+
+@property
+def child(self):
+    return self.attr("child")
 
 
 def on(self, tensor_type, *args, **kwargs):
@@ -65,7 +65,7 @@ methods.append(("__del__", __del__))
 objects = list()
 objects.append(_tf.Tensor)
 objects.append(_tf.Variable)
-objects.append(_tf.ResourceVariable)
+# objects.append(_tf.ResourceVariable)
 objects.append(RestrictedTensor)
 
 for obj in objects:

@@ -1,7 +1,8 @@
+from syft._torch.gold_standard_tensor.util import override_torch_function
+from syft._torch.gold_standard_tensor.restricted import RestrictedTorchTensor
+
 import torch as th
 
-from syft.tensor.torch.util import override_torch_function
-from syft.tensor import RestrictedTorchTensor
 
 HANDLED_FUNCTIONS_ABSTRACT = {}
 
@@ -58,6 +59,7 @@ class AbstractTorchTensor(RestrictedTorchTensor):
         return th.mm(self, other)
 
     def __add__(self, other):
+        print("adding2")
         return th.add(self, other)
 
 
@@ -76,7 +78,7 @@ def abstract_mm(input, other, out=None):
 
 @override_torch_function(th.add, HANDLED_FUNCTIONS_ABSTRACT)
 def abstract_add(input, other, out=None):
-
+    print("really adding 2")
     result = th.add(input.data, other.data)
 
     if out is None:
