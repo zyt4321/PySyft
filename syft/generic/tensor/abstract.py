@@ -1,4 +1,5 @@
 from syft.generic.tensor.util import override_syft_function
+from syft.generic.tensor.util import torch_only
 from syft.generic.tensor.restricted import RestrictedSyftTensor
 
 import torch as th
@@ -34,6 +35,10 @@ class AbstractSyftTensor(RestrictedSyftTensor):
 
         self.extra = "some stuff"
         self.some_stuff = "more stuff"
+
+    @torch_only
+    def extra_method(self):
+        return self
 
     def __syft_function__(self, func, args=(), kwargs=None):
         if kwargs is None:
