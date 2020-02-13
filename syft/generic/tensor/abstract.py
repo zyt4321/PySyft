@@ -1,8 +1,11 @@
 from syft.generic.tensor.util import override_syft_function
 from syft.generic.tensor.util import torch_only
+from syft.generic.tensor.util import numpy_only
 from syft.generic.tensor.restricted import RestrictedSyftTensor
 
+import syft as sy
 import torch as th
+import numpy as np
 
 
 HANDLED_FUNCTIONS_ABSTRACT = {}
@@ -30,16 +33,30 @@ class AbstractSyftTensor(RestrictedSyftTensor):
     functions are working correctly.
     """
 
+    @torch_only
     def __init__(self, *args, **kwargs):
         print("making abstract tensor")
 
         self.extra = "some stuff"
         self.some_stuff = "more stuff"
 
-    @torch_only
-    def extra_method(self):
-        return self
+    @numpy_only
+    def __new__(cls, input_array, info=None):
+        print("New AbstractNumpyArray")
+        obj = np.asarray(input_array).view(cls)
+        obj.info = info
+        return obj
 
+    @numpy_only
+    def __array_finalize__(self, obj):
+        """this is just to propagate attributes - this method is called
+        after a method/function is run"""
+
+        if obj is None:
+            return
+        self.info = getattr(obj, "info", None)
+
+    @torch_only
     def __syft_function__(self, func, args=(), kwargs=None):
         if kwargs is None:
             kwargs = {}
@@ -49,6 +66,37 @@ class AbstractSyftTensor(RestrictedSyftTensor):
 
         return HANDLED_FUNCTIONS_ABSTRACT[func](*args, **kwargs)
 
+    @numpy_only
+    def __array_function__(self, func, types, args, kwargs):
+        """This is basically the same thing as pytorch's __torch_function__
+        but it only works for one of numpy's two types of functions. To override
+        all of numpy's functions you also need to use __array_ufunc__"""
+
+        print("array function")
+        if func not in HANDLED_FUNCTIONS_ABSTRACT:
+            return NotImplemented
+
+        # Note: this allows subclasses that don't override
+        # __array_function__ to handle DiagonalArray objects.
+
+        if not all(issubclass(t, self.__class__) for t in types):
+            return NotImplemented
+
+        return HANDLED_FUNCTIONS_ABSTRACT[func](*args, **kwargs)
+
+    @numpy_only
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        """Unlike pytorch which only has one function type, numpy has two,
+        func and ufunc. This is basically __array_function__ for ufuncs."""
+
+        if ufunc not in HANDLED_FUNCTIONS_ABSTRACT:
+            return NotImplemented
+        if method == "__call__":
+            return HANDLED_FUNCTIONS_ABSTRACT[ufunc](*inputs, **kwargs)
+        else:
+            return NotImplemented
+
+    @torch_only
     def set(self, **kwargs):
         for name, value in kwargs.items():
             try:
@@ -61,16 +109,29 @@ class AbstractSyftTensor(RestrictedSyftTensor):
         return self
 
     def mm(self, other):
-        return th.mm(self, other)
+        return sy.mm(self, other)
+
+    def __matmul__(self, other):
+        return sy.matmul(self, other)
+
+    def dot(self, other):
+        return sy.matmul(self, other)
+
 
     def __add__(self, other):
-        return th.add(self, other)
+        return sy.add(self, other)
 
+    def __radd__(self, other):
+        return sy.add(other, self)
 
-@override_syft_function(th.mm, HANDLED_FUNCTIONS_ABSTRACT)
+    def __iadd__(self, other):
+        return sy.add(self, other, out=(self,))
+
+@torch_only
+@override_syft_function(sy.mm, HANDLED_FUNCTIONS_ABSTRACT)
 def abstract_mm(input, other, out=None):
 
-    result = th.mm(input.data, other.data)
+    result = sy.mm(input.data, other.data)
 
     if out is None:
         return AbstractSyftTensor(result)
@@ -79,11 +140,11 @@ def abstract_mm(input, other, out=None):
 
     return out
 
-
-@override_syft_function(th.add, HANDLED_FUNCTIONS_ABSTRACT)
+@torch_only
+@override_syft_function(sy.add, HANDLED_FUNCTIONS_ABSTRACT)
 def abstract_add(input, other, out=None):
 
-    result = th.add(input.data, other.data)
+    result = sy.add(input.data, other.data)
 
     if out is None:
         result = AbstractSyftTensor(result)

@@ -19,18 +19,6 @@ def ast2src(ast):
 def syft2framework_string(string, framework):
     return string.replace("Syft", framework.capitalize() ).replace("syft", framework.lower())
 
-def get_complier_resources(base_module, module_name, framework):
-    # folder to deposit each Torch tensor
-    target_folder = ROOT_DIR + f"syft/_{framework.lower()}/tensor/"
-
-    print(f"Generic ({module_name}.py) -> {framework.capitalize()} ({target_folder.split('PySyft')[1][1:]}{module_name}.py)")
-
-    module = getattr(base_module, module_name)
-
-    tree = mod2ast(module)
-
-    return tree, target_folder
-
 def write_ast_to_file(tree, target_folder, module_name):
 
     output = ast2src(tree)

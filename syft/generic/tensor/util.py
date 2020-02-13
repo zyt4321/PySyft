@@ -39,3 +39,36 @@ def torch_only(func):
 
     return decorator
 
+def numpy_only(func):
+    """Tells compiler that this function should only be included in the torch
+    generated code.
+    """
+
+    @functools.wraps(func)
+    def decorator(func):
+        return func
+
+    return decorator
+
+def tensorflow_only(func):
+    """Tells compiler that this function should only be included in the torch
+    generated code.
+    """
+
+    @functools.wraps(func)
+    def decorator(func):
+        return func
+
+    return decorator
+
+def jax_only(func):
+    """Tells compiler that this function should only be included in the torch
+    generated code.
+    """
+
+    @functools.wraps(func)
+    def decorator(func):
+        return func
+
+    return decorator
+

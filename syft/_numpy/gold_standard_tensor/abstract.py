@@ -34,7 +34,6 @@ class AbstractNumpyArray(np.ndarray):
         but it only works for one of numpy's two types of functions. To override
         all of numpy's functions you also need to use __array_ufunc__"""
 
-        print("array function")
         if func not in HANDLED_FUNCTIONS:
             return NotImplemented
 
@@ -46,30 +45,20 @@ class AbstractNumpyArray(np.ndarray):
 
         return HANDLED_FUNCTIONS[func](*args, **kwargs)
 
-    # Option 2: call into one's own __array_ufunc__
     def __matmul__(self, other):
-        print("mm")
-        return self.__array_ufunc__(np.matmul, "__call__", self, other)
+        return np.matmul(self, other)
 
-    # Option 2: call into one's own __array_ufunc__
     def matmul(self, other):
-        print("mm2")
-        return self.__array_ufunc__(np.matmul, "__call__", self, other)
+        return np.matmul(self, other)
 
-    # Option 2: call into one's own __array_ufunc__
     def __add__(self, other):
-        print("adding")
-        return self.__array_ufunc__(np.add, "__call__", self, other)
+        return np.add(self, other)
 
     def __radd__(self, other):
-        print("r adding")
-        return self.__array_ufunc__(np.add, "__call__", other, self)
+        return np.add(other, self)
 
     def __iadd__(self, other):
-        print("i adding")
-        result = self.__array_ufunc__(np.add, "__call__", self, other, out=(self,))
-        if result is NotImplemented:
-            raise TypeError(...)
+        return np.add(self, other, out=(self,))
 
 
 def implements(np_function):
