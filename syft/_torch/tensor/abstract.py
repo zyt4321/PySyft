@@ -5,6 +5,7 @@ from syft._torch.tensor.restricted import RestrictedTorchTensor
 import syft as sy
 import torch as th
 import numpy as np
+
 HANDLED_FUNCTIONS_ABSTRACT = {}
 
 
@@ -31,9 +32,9 @@ class AbstractTorchTensor(RestrictedTorchTensor):
     """
 
     def __init__(self, *args, **kwargs):
-        print('making abstract tensor')
-        self.extra = 'some stuff'
-        self.some_stuff = 'more stuff'
+        print("making abstract tensor")
+        self.extra = "some stuff"
+        self.some_stuff = "more stuff"
 
     def __torch_function__(self, func, args=(), kwargs=None):
         if kwargs is None:
@@ -50,7 +51,7 @@ class AbstractTorchTensor(RestrictedTorchTensor):
             except Exception as e:
                 raise AttributeError(
                     f"Attribute '{name}' does not exist for tensor type {type(self)}"
-                    )
+                )
         return self
 
     def mm(self, other):
@@ -89,15 +90,13 @@ def abstract_mm(input, other, out=None):
     input_data = method_argument_pre_process(input)
     other_data = method_argument_pre_process(other)
     result = th.mm(input_data, other_data)
-    return method_return_post_process(result=result, out=out, obj_type=type
-        (input))
+    return method_return_post_process(result=result, out=out, obj_type=type(input))
 
 
 @override_torch_function(th.add, HANDLED_FUNCTIONS_ABSTRACT)
 def abstract_add(input, other, out=None):
-    result = th.add(input.data, other.data)
-    if out is None:
-        result = AbstractTorchTensor(result)
-    else:
-        out.data.set_(result)
+    input_data = method_argument_pre_process(input)
+    other_data = method_argument_pre_process(other)
+    result = th.add(input_data, other_data)
+    return method_return_post_process(result=result, out=out, obj_type=type(input))
     return result

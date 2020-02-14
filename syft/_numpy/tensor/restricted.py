@@ -7,16 +7,14 @@ class RestrictedNumpyTensor(th.Tensor):
 
 
 def create_not_implemented_method(method_name):
-
     def raise_not_implemented_exception(self, *args, **kwargs):
-        msg = (
-            f"You just tried to execute {method_name} on tensor type '{type(self)}."
-            )
-        msg += ' However, method does not exist within this class.'
+        msg = f"You just tried to execute {method_name} on tensor type '{type(self)}."
+        msg += " However, method does not exist within this class."
         raise NotImplemented(msg)
+
     return raise_not_implemented_exception
 
 
-for method_name in ['__add__', '__sub__']:
+for method_name in ["__add__", "__sub__"]:
     new_method = create_not_implemented_method(method_name)
     setattr(RestrictedNumpyTensor, method_name, new_method)

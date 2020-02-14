@@ -25,6 +25,7 @@ def override_numpy_function(torch_function, HANDLED_FUNCTIONS_DICT):
     def decorator(func):
         HANDLED_FUNCTIONS_DICT[torch_function] = func
         return func
+
     return decorator
 
 
@@ -36,6 +37,7 @@ def torch_only(func):
     @functools.wraps(func)
     def decorator(func):
         return func
+
     return decorator
 
 
@@ -47,6 +49,7 @@ def numpy_only(func):
     @functools.wraps(func)
     def decorator(func):
         return func
+
     return decorator
 
 
@@ -58,6 +61,7 @@ def tensorflow_only(func):
     @functools.wraps(func)
     def decorator(func):
         return func
+
     return decorator
 
 
@@ -69,4 +73,5 @@ def jax_only(func):
     @functools.wraps(func)
     def decorator(func):
         return func
+
     return decorator

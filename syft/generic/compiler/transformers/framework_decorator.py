@@ -1,7 +1,7 @@
 import ast
 
-class FrameworkSpecificMethodDecoratorFilter(ast.NodeTransformer):
 
+class FrameworkSpecificMethodDecoratorFilter(ast.NodeTransformer):
     def __init__(self, framework):
         self.framework = framework
 
@@ -9,9 +9,9 @@ class FrameworkSpecificMethodDecoratorFilter(ast.NodeTransformer):
         # change occurances of "syft" in decorator names to "torch"
         for d_i, decorator in enumerate(node.decorator_list):
 
-            if (hasattr(decorator, 'id')):
-                if (decorator.id[-5:] == "_only"):
-                    if (decorator.id[:-5] != self.framework.lower()):
+            if hasattr(decorator, "id"):
+                if decorator.id[-5:] == "_only":
+                    if decorator.id[:-5] != self.framework.lower():
                         return None
                     del node.decorator_list[d_i]
 

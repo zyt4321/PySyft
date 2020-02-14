@@ -117,7 +117,6 @@ class AbstractSyftTensor(RestrictedSyftTensor):
     def dot(self, other):
         return sy.matmul(self, other)
 
-
     def __add__(self, other):
         return sy.add(self, other)
 
@@ -127,9 +126,11 @@ class AbstractSyftTensor(RestrictedSyftTensor):
     def __iadd__(self, other):
         return sy.add(self, other, out=(self,))
 
+
 @torch_only
 def method_argument_pre_process(x):
     return x.data
+
 
 @torch_only
 def method_return_post_process(result, out=None, obj_type=AbstractSyftTensor):
@@ -140,9 +141,11 @@ def method_return_post_process(result, out=None, obj_type=AbstractSyftTensor):
 
     return out
 
+
 @numpy_only
 def method_argument_pre_process(x):
     return np.asarray(x)
+
 
 @torch_only
 @override_syft_function(sy.mm, HANDLED_FUNCTIONS_ABSTRACT)
@@ -155,15 +158,16 @@ def abstract_mm(input, other, out=None):
 
     return method_return_post_process(result=result, out=out, obj_type=type(input))
 
+
 @torch_only
 @override_syft_function(sy.add, HANDLED_FUNCTIONS_ABSTRACT)
 def abstract_add(input, other, out=None):
 
-    result = sy.add(input.data, other.data)
+    input_data = method_argument_pre_process(input)
+    other_data = method_argument_pre_process(other)
 
-    if out is None:
-        result = AbstractSyftTensor(result)
-    else:
-        out.data.set_(result)
+    result = sy.add(input_data, other_data)
+
+    return method_return_post_process(result=result, out=out, obj_type=type(input))
 
     return result

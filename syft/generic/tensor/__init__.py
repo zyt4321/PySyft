@@ -12,6 +12,6 @@ do_not_compile_modules = set(
         "__path__",
         "__spec__",
         "compile_classes",
-        "do_not_compile_modules"
+        "do_not_compile_modules",
     ]
 )

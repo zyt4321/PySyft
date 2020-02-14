@@ -28,6 +28,7 @@ def override_syft_function(torch_function, HANDLED_FUNCTIONS_DICT):
 
     return decorator
 
+
 def torch_only(func):
     """Tells compiler that this function should only be included in the torch
     generated code.
@@ -38,6 +39,7 @@ def torch_only(func):
         return func
 
     return decorator
+
 
 def numpy_only(func):
     """Tells compiler that this function should only be included in the torch
@@ -50,6 +52,7 @@ def numpy_only(func):
 
     return decorator
 
+
 def tensorflow_only(func):
     """Tells compiler that this function should only be included in the torch
     generated code.
@@ -61,6 +64,7 @@ def tensorflow_only(func):
 
     return decorator
 
+
 def jax_only(func):
     """Tells compiler that this function should only be included in the torch
     generated code.
@@ -71,4 +75,3 @@ def jax_only(func):
         return func
 
     return decorator
-

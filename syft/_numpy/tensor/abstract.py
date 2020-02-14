@@ -5,6 +5,7 @@ from syft._numpy.tensor.restricted import RestrictedNumpyTensor
 import syft as sy
 import torch as th
 import numpy as np
+
 HANDLED_FUNCTIONS_ABSTRACT = {}
 
 
@@ -31,7 +32,7 @@ class AbstractNumpyTensor(RestrictedNumpyTensor):
     """
 
     def __new__(cls, input_array, info=None):
-        print('New AbstractNumpyArray')
+        print("New AbstractNumpyArray")
         obj = np.asarray(input_array).view(cls)
         obj.info = info
         return obj
@@ -41,13 +42,13 @@ class AbstractNumpyTensor(RestrictedNumpyTensor):
         after a method/function is run"""
         if obj is None:
             return
-        self.info = getattr(obj, 'info', None)
+        self.info = getattr(obj, "info", None)
 
     def __array_function__(self, func, types, args, kwargs):
         """This is basically the same thing as pytorch's __torch_function__
         but it only works for one of numpy's two types of functions. To override
         all of numpy's functions you also need to use __array_ufunc__"""
-        print('array function')
+        print("array function")
         if func not in HANDLED_FUNCTIONS_ABSTRACT:
             return NotImplemented
         if not all(issubclass(t, self.__class__) for t in types):
@@ -59,7 +60,7 @@ class AbstractNumpyTensor(RestrictedNumpyTensor):
         func and ufunc. This is basically __array_function__ for ufuncs."""
         if ufunc not in HANDLED_FUNCTIONS_ABSTRACT:
             return NotImplemented
-        if method == '__call__':
+        if method == "__call__":
             return HANDLED_FUNCTIONS_ABSTRACT[ufunc](*inputs, **kwargs)
         else:
             return NotImplemented
