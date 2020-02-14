@@ -35,6 +35,11 @@ class SyftToFrameworkNameTransformer(ast.NodeTransformer):
 
         return node
 
+    # change strings (particularly documentation) from Syft -> Framework
+    def visit_Str(self, node: ast.ImportFrom):
+        node.s = syft2framework_string(node.s, self.framework)
+        return node
+
     def visit_Name(self, node: ast.Name):
 
         # Convert parent class to Torch Tensor
@@ -56,6 +61,12 @@ class SyftToFrameworkNameTransformer(ast.NodeTransformer):
                 if (hasattr(decorator.func, 'id')):
                     if 'syft' in decorator.func.id:
                         decorator.func.id = syft2framework_string(decorator.func.id, self.framework)
+
+        # when you pass in a SyftTensor class as a default value in a function,
+        # we need to make sure to conver it to the correct framework class
+        for arg in node.args.defaults:
+            if(hasattr(arg, 'id')):
+                arg.id = syft2framework_string(arg.id, self.framework)
 
         for body_part in node.body:
             body_part = self.visit(body_part)

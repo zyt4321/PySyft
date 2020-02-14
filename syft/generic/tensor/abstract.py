@@ -128,17 +128,32 @@ class AbstractSyftTensor(RestrictedSyftTensor):
         return sy.add(self, other, out=(self,))
 
 @torch_only
-@override_syft_function(sy.mm, HANDLED_FUNCTIONS_ABSTRACT)
-def abstract_mm(input, other, out=None):
+def method_argument_pre_process(x):
+    return x.data
 
-    result = sy.mm(input.data, other.data)
-
+@torch_only
+def method_return_post_process(result, out=None, obj_type=AbstractSyftTensor):
     if out is None:
-        return AbstractSyftTensor(result)
+        return obj_type(result)
     else:
         out.data.set_(result)
 
     return out
+
+@numpy_only
+def method_argument_pre_process(x):
+    return np.asarray(x)
+
+@torch_only
+@override_syft_function(sy.mm, HANDLED_FUNCTIONS_ABSTRACT)
+def abstract_mm(input, other, out=None):
+
+    input_data = method_argument_pre_process(input)
+    other_data = method_argument_pre_process(other)
+
+    result = sy.mm(input_data, other_data)
+
+    return method_return_post_process(result=result, out=out, obj_type=type(input))
 
 @torch_only
 @override_syft_function(sy.add, HANDLED_FUNCTIONS_ABSTRACT)

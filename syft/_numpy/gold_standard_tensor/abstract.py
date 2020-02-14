@@ -70,7 +70,6 @@ def implements(np_function):
 
     return decorator
 
-
 @implements(np.matmul)
 def abstract_mm(x, y):
     "Implementation of np.sum for DiagonalArray objects"
