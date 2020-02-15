@@ -1,12 +1,5 @@
-from syft._torch.tensor.util import override_torch_function
-from syft._torch.tensor.util import torch_only
-from syft._torch.tensor.util import numpy_only
 from syft._torch.tensor.restricted import RestrictedTorchTensor
-import syft as sy
 import torch as th
-import numpy as np
-
-HANDLED_FUNCTIONS_ABSTRACT = {}
 
 
 class AbstractTorchTensor(RestrictedTorchTensor):
@@ -31,28 +24,14 @@ class AbstractTorchTensor(RestrictedTorchTensor):
     functions are working correctly.
     """
 
-    def __init__(self, *args, **kwargs):
-        print("making abstract tensor")
-        self.extra = "some stuff"
-        self.some_stuff = "more stuff"
+    def init(self, *args, **kwargs):
+        self.child = args[0]
+        self.extra = 'some stuff'
+        self.some_stuff = 'more stuff'
 
-    def __torch_function__(self, func, args=(), kwargs=None):
-        if kwargs is None:
-            kwargs = {}
-        if func not in HANDLED_FUNCTIONS_ABSTRACT:
-            return NotImplemented
-        return HANDLED_FUNCTIONS_ABSTRACT[func](*args, **kwargs)
-
-    def set(self, **kwargs):
-        for name, value in kwargs.items():
-            try:
-                attr = self.__getattribute__(name)
-                self.__setattr__(name, value)
-            except Exception as e:
-                raise AttributeError(
-                    f"Attribute '{name}' does not exist for tensor type {type(self)}"
-                )
-        return self
+    @property
+    def grad(self):
+        return type(self)(self.child.grad)
 
     def mm(self, other):
         return th.mm(self, other)
@@ -73,30 +52,3 @@ class AbstractTorchTensor(RestrictedTorchTensor):
         return th.add(self, other, out=(self,))
 
 
-def method_argument_pre_process(x):
-    return x.data
-
-
-def method_return_post_process(result, out=None, obj_type=AbstractTorchTensor):
-    if out is None:
-        return obj_type(result)
-    else:
-        out.data.set_(result)
-    return out
-
-
-@override_torch_function(th.mm, HANDLED_FUNCTIONS_ABSTRACT)
-def abstract_mm(input, other, out=None):
-    input_data = method_argument_pre_process(input)
-    other_data = method_argument_pre_process(other)
-    result = th.mm(input_data, other_data)
-    return method_return_post_process(result=result, out=out, obj_type=type(input))
-
-
-@override_torch_function(th.add, HANDLED_FUNCTIONS_ABSTRACT)
-def abstract_add(input, other, out=None):
-    input_data = method_argument_pre_process(input)
-    other_data = method_argument_pre_process(other)
-    result = th.add(input_data, other_data)
-    return method_return_post_process(result=result, out=out, obj_type=type(input))
-    return result

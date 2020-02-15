@@ -2,8 +2,8 @@ from syft._torch.tensor.abstract import AbstractTorchTensor
 
 
 class FixedPrecisionTensor(AbstractTorchTensor):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+
+    def init(self, *args, **kwargs):
         self.base = 10
         self.precision_fractional = 3
         self.data = self.data * self.scaling_factor
@@ -11,3 +11,5 @@ class FixedPrecisionTensor(AbstractTorchTensor):
     @property
     def scaling_factor(self):
         return self.base ** self.precision_fractional
+
+

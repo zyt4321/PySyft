@@ -1,20 +1,31 @@
-import torch as th
+from syft._torch.tensor.util import BaseTensor
+from syft._torch.tensor.util import framework
+from syft._torch.tensor.util import execute_default_function_on_child_and_wrap
 
 
-class RestrictedTorchTensor(th.Tensor):
+class RestrictedTorchTensor(BaseTensor(framework)):
     """A tensor class which returns a NotImplementedError for all methods which you do not
     explicitly override."""
 
+    def init(self, *args, **kwargs):
+        """"""
 
-def create_not_implemented_method(method_name):
-    def raise_not_implemented_exception(self, *args, **kwargs):
-        msg = f"You just tried to execute {method_name} on tensor type '{type(self)}."
-        msg += " However, method does not exist within this class."
-        raise NotImplemented(msg)
+    def __init__(self, *args, **kwargs):
+        self.init(*args, **kwargs)
 
-    return raise_not_implemented_exception
+    def set(self, **kwargs):
+        for name, value in kwargs.items():
+            try:
+                attr = self.__getattribute__(name)
+                self.__setattr__(name, value)
+            except Exception as e:
+                raise AttributeError(
+                    f"Attribute '{name}' does not exist for tensor type {type(self)}"
+                    )
+        return self
+
+    def __torch_function__(self, func, args=(), kwargs=None):
+        return execute_default_function_on_child_and_wrap(self, func, args,
+            kwargs)
 
 
-for method_name in ["__add__", "__sub__"]:
-    new_method = create_not_implemented_method(method_name)
-    setattr(RestrictedTorchTensor, method_name, new_method)

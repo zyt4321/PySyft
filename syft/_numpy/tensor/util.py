@@ -1,4 +1,93 @@
 import functools
+import torch as th
+import numpy as np
+
+
+def torch_only(func):
+    """Tells compiler that this function should only be included in the torch
+    generated code.
+    """
+
+    @functools.wraps(func)
+    def decorator(func):
+        return func
+    return decorator
+
+
+def numpy_only(func):
+    """Tells compiler that this function should only be included in the torch
+    generated code.
+    """
+
+    @functools.wraps(func)
+    def decorator(func):
+        return func
+    return decorator
+
+
+def tensorflow_only(func):
+    """Tells compiler that this function should only be included in the torch
+    generated code.
+    """
+
+    @functools.wraps(func)
+    def decorator(func):
+        return func
+    return decorator
+
+
+def jax_only(func):
+    """Tells compiler that this function should only be included in the torch
+    generated code.
+    """
+
+    @functools.wraps(func)
+    def decorator(func):
+        return func
+    return decorator
+
+
+framework = 'Numpy'
+HANDLED_FUNCTIONS_ABSTRACT = {}
+
+
+def BaseTensor(framework):
+    if framework == 'Torch':
+        return th.Tensor
+    elif framework == 'Numpy':
+        return np.ndarray
+    else:
+        return object
+
+
+def method_argument_pre_process(x):
+    return np.asarray(x)
+
+
+def method_return_post_process(result, out=None, obj_type=BaseTensor(framework)
+    ):
+    if out is None:
+        return obj_type(result)
+    else:
+        out.data.set_(result)
+    return out
+
+
+def execute_default_function_on_child_and_wrap(self, func, args, kwargs,
+    types=None):
+    if kwargs is None:
+        kwargs = {}
+    if func not in HANDLED_FUNCTIONS_ABSTRACT:
+        new_args = list()
+        for arg in args:
+            new_args.append(method_argument_pre_process(arg))
+        result = func(*new_args, **kwargs)
+        result = method_return_post_process(result, obj_type=type(args[0]))
+        return result
+    if types is not None:
+        if not all(issubclass(t, self.__class__) for t in types):
+            return NotImplemented
+    return HANDLED_FUNCTIONS_ABSTRACT[func](*args, **kwargs)
 
 
 def override_numpy_function(torch_function, HANDLED_FUNCTIONS_DICT):
@@ -23,55 +112,16 @@ def override_numpy_function(torch_function, HANDLED_FUNCTIONS_DICT):
 
     @functools.wraps(torch_function)
     def decorator(func):
-        HANDLED_FUNCTIONS_DICT[torch_function] = func
-        return func
 
+        def exec(*args, **kwargs):
+            new_args = list()
+            for arg in args:
+                new_args.append(method_argument_pre_process(arg))
+            result = func(*new_args, **kwargs)
+            result = method_return_post_process(result, obj_type=type(args[0]))
+            return result
+        HANDLED_FUNCTIONS_DICT[torch_function] = exec
+        return func
     return decorator
 
 
-def torch_only(func):
-    """Tells compiler that this function should only be included in the torch
-    generated code.
-    """
-
-    @functools.wraps(func)
-    def decorator(func):
-        return func
-
-    return decorator
-
-
-def numpy_only(func):
-    """Tells compiler that this function should only be included in the torch
-    generated code.
-    """
-
-    @functools.wraps(func)
-    def decorator(func):
-        return func
-
-    return decorator
-
-
-def tensorflow_only(func):
-    """Tells compiler that this function should only be included in the torch
-    generated code.
-    """
-
-    @functools.wraps(func)
-    def decorator(func):
-        return func
-
-    return decorator
-
-
-def jax_only(func):
-    """Tells compiler that this function should only be included in the torch
-    generated code.
-    """
-
-    @functools.wraps(func)
-    def decorator(func):
-        return func
-
-    return decorator

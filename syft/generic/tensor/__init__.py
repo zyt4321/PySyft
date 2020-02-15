@@ -1,4 +1,8 @@
-from syft.generic.tensor import abstract, precision
+# whatever you want to be automatically compiled, import here
+from syft.generic.tensor import restricted
+from syft.generic.tensor import abstract
+from syft.generic.tensor import precision
+from syft.generic.tensor import constructors
 
 do_not_compile_modules = set(
     [
@@ -15,3 +19,6 @@ do_not_compile_modules = set(
         "do_not_compile_modules",
     ]
 )
+
+
+

@@ -25,13 +25,12 @@ def syft2framework_string(string, framework):
     return string.replace("Syft", framework.capitalize()).replace("syft", framework.lower())
 
 
-def write_ast_to_file(tree, target_folder, module_name):
+def write_output_to_file(output, target_folder, module_name):
 
-    output = ast2src(tree)
+
     f = open(target_folder + module_name + ".py", "w+")
     f.write(output)
     f.close()
-
 
 # the root directory of the project into which you want to deposit the results
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__)).split("PySyft")[0] + "PySyft/"

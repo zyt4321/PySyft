@@ -2,8 +2,7 @@ from syft.generic.tensor.abstract import AbstractSyftTensor
 
 
 class FixedPrecisionTensor(AbstractSyftTensor):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def init(self, *args, **kwargs):
 
         self.base = 10
         self.precision_fractional = 3

@@ -43,9 +43,7 @@ def check_framework(framework, resources):
 
 ### BEGIN CONFIGURATION
 
-### PyTorch Automatic Compilation Configuration
-
-torch_resources = {}
+### SYFT WIDE CONFIGURATION
 
 illegal_strings = list()
 illegal_strings.append(("Syft",
@@ -54,6 +52,10 @@ illegal_strings.append(("Syft",
                         , "You will probably need to modify an existing Transformer or add a new one to ensure"
                           "\n\t\t that this abtract tensor gets properly generated. You can hide this warning by adding a comment on"
                           "\n\t\t the line in question: #IGNORE_IS_Syft )"))
+
+### PyTorch Automatic Compilation Configuration
+
+torch_resources = {}
 
 torch_resources['illegal_strings'] = illegal_strings
 
@@ -68,3 +70,4 @@ numpy_resources['illegal_strings'] = illegal_strings
 
 
 check_framework("torch", torch_resources)
+check_framework("numpy", numpy_resources)

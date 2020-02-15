@@ -19,7 +19,7 @@ class SyftToFrameworkNameTransformer(ast.NodeTransformer):
 
         return node
 
-    # change imports from Syft -> Framework
+    # change class name and inheriting class from Syft -> Framework
     def visit_ClassDef(self, node: ast.ImportFrom):
 
         if "Syft" in node.name:

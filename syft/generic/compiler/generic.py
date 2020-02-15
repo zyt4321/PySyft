@@ -1,8 +1,9 @@
 from syft.generic import tensor
 
 
-from syft.generic.compiler.util import write_ast_to_file
+from syft.generic.compiler.util import write_output_to_file
 from syft.generic.compiler.util import mod2ast
+from syft.generic.compiler.util import ast2src
 from syft.generic.compiler.util import ROOT_DIR
 from syft.generic.compiler.transformers.naming import SyftToFrameworkNameTransformer
 from syft.generic.compiler.transformers.framework_decorator import (
@@ -11,7 +12,9 @@ from syft.generic.compiler.transformers.framework_decorator import (
 from syft.generic.compiler.transformers.handle_transformer import (
     DecoratorAwareFrameworkHandleTransformer,
 )
-
+from syft.generic.compiler.transformers.handle_transformer import DecoratorAwareFrameworkFunctionTransfomer
+from syft.generic.compiler.comment_overrides import cleanup
+from syft.generic.compiler.comment_overrides import remove_unused_imports
 
 def get_complier_resources(base_module, module_name, framework):
     # folder to deposit each Torch tensor
@@ -42,4 +45,13 @@ def compile_module(module_name, framework="Numpy"):
     # Convert "sy." to "<framework shorthand>." in method calls
     tree = DecoratorAwareFrameworkHandleTransformer(framework).visit(tree)
 
-    write_ast_to_file(tree, target_folder, module_name)
+    # Convert syft methods to framework methods
+    tree = DecoratorAwareFrameworkFunctionTransfomer(framework).visit(tree)
+
+    output = ast2src(tree)
+
+    output = cleanup(output)
+
+    output = remove_unused_imports(output)
+
+    write_output_to_file(output, target_folder, module_name)
