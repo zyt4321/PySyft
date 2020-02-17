@@ -40,7 +40,7 @@ class AbstractTensor(RestrictedTensor):
 
     @property
     def grad(self):
-        return type(self)(self.child.grad)
+        return type(self).Constructor(self.child.grad)
 
     def mm(self, other):
         return th.mm(self, other)

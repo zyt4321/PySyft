@@ -80,31 +80,29 @@ class RestrictedSyftTensor(BaseTensor(framework)):
             return NotImplemented
 
     def __str__(self):
-        if(not (self.child == BaseTensor(framework))):
+        if((hasattr(self.child, 'str_recurse'))):
             result = f"[{type(self).__name__} -> {(self.child.str_recurse())}]"
 
-            # pretty print class chain with final data tensor
-
-            if("tensor(" in result):
-                split_str = str(result).split("tensor(")
-                base_len = float(len(split_str[0]) + 8)
-
-                c = '['
-                ci = -1
-                while (c == '['):
-                    base_len += 0.5
-                    c = split_str[1][ci]
-                    ci += 1
-
-                base_len = int(base_len)
-
-                result = result.replace("        ", ' ' * (base_len))
-
-
-            return result
-
         else:
-            return f"[{type(self).__name__} -> {(self.child)}]"
+            result = f"[{type(self).__name__} -> {(self.child)}]"
+
+        # pretty print class chain with final data tensor
+        if ("tensor(" in result):
+            split_str = str(result).split("tensor(")
+            base_len = float(len(split_str[0]) + 8)
+
+            c = '['
+            ci = -1
+            while (c == '['):
+                base_len += 0.5
+                c = split_str[1][ci]
+                ci += 1
+
+            base_len = int(base_len)
+
+            result = result.replace("        ", ' ' * (base_len))
+
+        return result
 
     def str_recurse(self):
         if(not (self.child == BaseTensor(framework))):
@@ -114,6 +112,13 @@ class RestrictedSyftTensor(BaseTensor(framework)):
 
     def __repr__(self):
         return str(self)
+
+    def backward(self, *args, **kwargs):
+        return self.child.backward(*args, **kwargs)
+
+    @property
+    def has_grandchild(self):
+        return hasattr(self.child, 'child')
     # END NUMPY FUNCTIONALITY
 
 # def create_not_implemented_method(method_name):
