@@ -1,4 +1,4 @@
-from syft._numpy.tensor.abstract import AbstractNumpyTensor
+from syft._numpy.tensor.abstract import AbstractTensor
 import numpy as np
 import pytest
 
@@ -8,9 +8,9 @@ def test_subclass_method_type_and_values(method_name):
     x_ = np.array([[1, 2], [3, 4.]])
     target = x_.__getattribute__(method_name)(x_)
 
-    x = AbstractNumpyTensor(x_)
+    x = AbstractTensor(x_)
     out = x.__getattribute__(method_name)(x)
 
     assert isinstance(target, np.ndarray)
-    assert isinstance(out, AbstractNumpyTensor)
+    assert isinstance(out, AbstractTensor)
     assert (np.asarray(out) == target).all()

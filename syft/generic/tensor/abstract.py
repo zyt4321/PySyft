@@ -29,7 +29,16 @@ class AbstractSyftTensor(RestrictedSyftTensor):
     functions are working correctly.
     """
 
-    def init(self, *args, **kwargs):
+    @staticmethod
+    def Constructor(x):
+        try:
+            return AbstractSyftTensor(x)
+        except TypeError as e:
+            result = AbstractSyftTensor(x.data)
+            result.child = x
+            return result
+
+    def post_init(self, *args, **kwargs):
 
         self.child = args[0]
 

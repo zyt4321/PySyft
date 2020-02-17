@@ -67,7 +67,7 @@ def method_argument_pre_process(x):
 def method_return_post_process(result, out=None, obj_type=BaseTensor(framework)
     ):
     if out is None:
-        return obj_type(result)
+        return obj_type.Constructor(result)
     else:
         out.data.set_(result)
     return out

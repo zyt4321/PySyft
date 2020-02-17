@@ -1,8 +1,8 @@
-from syft._numpy.tensor.restricted import RestrictedNumpyTensor
+from syft._numpy.tensor.restricted import RestrictedTensor
 import numpy as np
 
 
-class AbstractNumpyTensor(RestrictedNumpyTensor):
+class AbstractTensor(RestrictedTensor):
     """A subclass of numpy.Tensor which is necessary to extend Numpy's ability
     to implement custom functions into an ability to also extend custom methods.
     This tensor type execute the same functionality as a normal th.Tensor, but you
@@ -24,7 +24,16 @@ class AbstractNumpyTensor(RestrictedNumpyTensor):
     functions are working correctly.
     """
 
-    def init(self, *args, **kwargs):
+    @staticmethod
+    def Constructor(x):
+        try:
+            return AbstractTensor(x)
+        except TypeError as e:
+            result = AbstractTensor(x.data)
+            result.child = x
+            return result
+
+    def post_init(self, *args, **kwargs):
         self.child = args[0]
         self.extra = 'some stuff'
         self.some_stuff = 'more stuff'

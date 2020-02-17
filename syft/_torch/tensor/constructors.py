@@ -1,14 +1,8 @@
-from syft._torch.tensor import restricted
-from syft._torch.tensor import abstract
-from syft._torch.tensor import precision
-
-
-def RestrictedSyftTensor(x):
-    try:
-        return restricted.RestrictedSyftTensor(x)
-    except TypeError as e:
-        result = restricted.RestrictedSyftTensor(x.data)
-        result.child = x
-        return result
+from syft._torch.tensor.restricted import RestrictedTensor
+from syft._torch.tensor.abstract import AbstractTensor
+from syft._torch.tensor.precision import FixedPrecisionTensor
+RestrictedTensor = RestrictedTensor.Constructor
+AbstractTensor = AbstractTensor.Constructor
+FixedPrecisionTensor = FixedPrecisionTensor.Constructor
 
 

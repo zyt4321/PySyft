@@ -13,8 +13,8 @@ from syft.generic.compiler.transformers.handle_transformer import (
     DecoratorAwareFrameworkHandleTransformer,
 )
 from syft.generic.compiler.transformers.handle_transformer import DecoratorAwareFrameworkFunctionTransfomer
-from syft.generic.compiler.comment_overrides import cleanup
-from syft.generic.compiler.comment_overrides import remove_unused_imports
+from syft.generic.compiler.overrides import cleanup
+from syft.generic.compiler.overrides  import remove_unused_imports
 
 def get_complier_resources(base_module, module_name, framework):
     # folder to deposit each Torch tensor

@@ -1,8 +1,8 @@
-from syft._torch.tensor.restricted import RestrictedTorchTensor
+from syft._torch.tensor.restricted import RestrictedTensor
 import torch as th
 
 
-class AbstractTorchTensor(RestrictedTorchTensor):
+class AbstractTensor(RestrictedTensor):
     """A subclass of torch.Tensor which is necessary to extend Torch's ability
     to implement custom functions into an ability to also extend custom methods.
     This tensor type execute the same functionality as a normal th.Tensor, but you
@@ -24,7 +24,16 @@ class AbstractTorchTensor(RestrictedTorchTensor):
     functions are working correctly.
     """
 
-    def init(self, *args, **kwargs):
+    @staticmethod
+    def Constructor(x):
+        try:
+            return AbstractTensor(x)
+        except TypeError as e:
+            result = AbstractTensor(x.data)
+            result.child = x
+            return result
+
+    def post_init(self, *args, **kwargs):
         self.child = args[0]
         self.extra = 'some stuff'
         self.some_stuff = 'more stuff'

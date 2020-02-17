@@ -1,7 +1,7 @@
-from syft._numpy.tensor.abstract import AbstractNumpyTensor
+from syft._numpy.tensor.abstract import AbstractTensor
 
 
-class FixedPrecisionTensor(AbstractNumpyTensor):
+class FixedPrecisionTensor(AbstractTensor):
 
     def init(self, *args, **kwargs):
         self.base = 10

@@ -12,19 +12,29 @@ class RestrictedSyftTensor(BaseTensor(framework)):
     explicitly override."""
 
 
-    def init(self, *args, **kwargs):
-        ""
-
-    @torch_only
-    def __init__(self, *args, **kwargs):
-        self.init(*args, **kwargs)
+    @staticmethod
+    def Constructor(x):
+        try:
+            return RestrictedSyftTensor(x)
+        except TypeError as e:
+            result = RestrictedSyftTensor(x.data)
+            result.child = x
+            return result
 
     @numpy_only
     def __new__(cls, input_array, *args, **kwargs):
         print("New AbstractNumpyArray")
         obj = np.asarray(input_array).view(cls)
-        obj.init(input_array, *args, **kwargs)
+        obj.post_init(input_array, *args, **kwargs)
         return obj
+
+    @torch_only
+    def __init__(self, *args, **kwargs):
+        self.post_init(*args, **kwargs)
+
+
+    def post_init(self, *args, **kwargs):
+        ""
 
     @numpy_only
     def __array_finalize__(self, obj):
@@ -69,8 +79,41 @@ class RestrictedSyftTensor(BaseTensor(framework)):
         else:
             return NotImplemented
 
+    def __str__(self):
+        if(not (self.child == BaseTensor(framework))):
+            result = f"[{type(self).__name__} -> {(self.child.str_recurse())}]"
+
+            # pretty print class chain with final data tensor
+
+            if("tensor(" in result):
+                split_str = str(result).split("tensor(")
+                base_len = float(len(split_str[0]) + 8)
+
+                c = '['
+                ci = -1
+                while (c == '['):
+                    base_len += 0.5
+                    c = split_str[1][ci]
+                    ci += 1
+
+                base_len = int(base_len)
+
+                result = result.replace("        ", ' ' * (base_len))
 
 
+            return result
+
+        else:
+            return f"[{type(self).__name__} -> {(self.child)}]"
+
+    def str_recurse(self):
+        if(not (self.child == BaseTensor(framework))):
+            return f"{type(self).__name__} -> {str(self.child)}"
+        else:
+            return f"{type(self).__name__} -> {type(self.child).__name__}"
+
+    def __repr__(self):
+        return str(self)
     # END NUMPY FUNCTIONALITY
 
 # def create_not_implemented_method(method_name):

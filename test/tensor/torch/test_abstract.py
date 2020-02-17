@@ -1,4 +1,4 @@
-from syft._torch.tensor.abstract import AbstractTorchTensor
+from syft._torch.tensor.abstract import AbstractTensor
 import torch as th
 import pytest
 
@@ -9,11 +9,11 @@ def test_subclass_method_type_and_values(method_name):
     x_ = th.tensor([[1, 2], [3, 4.]])
     target = x_.__getattribute__(method_name)(x_)
 
-    x = AbstractTorchTensor(x_)
+    x = AbstractTensor(x_)
     out = x.__getattribute__(method_name)(x)
 
     print(th.__version__)
 
     assert isinstance(target, th.Tensor)
-    assert isinstance(out, AbstractTorchTensor)
+    assert isinstance(out, AbstractTensor)
     assert (out == target).all()

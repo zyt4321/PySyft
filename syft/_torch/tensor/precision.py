@@ -1,7 +1,7 @@
-from syft._torch.tensor.abstract import AbstractTorchTensor
+from syft._torch.tensor.abstract import AbstractTensor
 
 
-class FixedPrecisionTensor(AbstractTorchTensor):
+class FixedPrecisionTensor(AbstractTensor):
 
     def init(self, *args, **kwargs):
         self.base = 10
