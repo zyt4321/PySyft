@@ -25,6 +25,9 @@ from syft_proto.execution.v1.plan_pb2 import Plan as PlanPB
 from syft_proto.execution.v1.computation_action_pb2 import ComputationAction as ComputationActionPB
 
 
+
+from torch.nn import Module
+
 class func2plan(object):
     """Decorator which converts a function to a plan.
 
@@ -168,6 +171,12 @@ class Plan(AbstractObject):
         else:
             return []
 
+    _build_translators = []
+
+    to = Module.to
+    train = lambda *args: None
+    eval = lambda *args: None
+
     def build(self, *args):
         """Builds the plan.
 
@@ -275,6 +284,8 @@ class Plan(AbstractObject):
             result_ids: List of ids where the results will be stored.
         """
         # TODO: can we reuse result_ids?
+        args_ = [a.child if a.is_wrapper else a  for a in args_]
+
         return self.__call__(*args_)
 
     def send(self, *locations: AbstractWorker, force=False) -> PointerPlan:
