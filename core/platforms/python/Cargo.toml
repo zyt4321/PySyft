@@ -9,6 +9,7 @@ name = "pysyft"
 crate-type = ["cdylib"]
 
 [dependencies]
+syft = { version="^0", path = "../../syft"}
 pyo3 = { version = "0.11.0", features = ["extension-module"] }
 tokio = { version = "0.2.21", features = ["full"] }
 futures = "0.3"
