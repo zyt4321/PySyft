@@ -91,6 +91,14 @@ https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml
 $ code --install-extension tamasfe.even-better-toml
 ```
 
+Add to settings:
+
+```
+{
+  "evenBetterToml.formatter.reorderKeys": false
+}
+```
+
 ## Python
 
 ### Setup
@@ -170,13 +178,21 @@ You can compile and install the python library from the virtualenv in one comman
 $ maturin develop
 ```
 
+## Python Tests
+
+To test it out try:
+
+```
+$ python tests/message.py
+```
+
 ## Compile Protobufs
 
 Make sure you have protoc available in your path.
 Note: The protobufs are automatically compiled every time rust builds.
 
 ```
-$ protoc -I=./proto --python_out=./protos/python ./proto/capabilities.proto
+$ protoc -I=./protos --python_out=./protos/python ./proto/message.proto
 ```
 
 ## Build Python Wheel
