@@ -192,22 +192,28 @@ To test it out try:
 $ python tests/message.py
 ```
 
-## Compile Protobufs
-
-Make sure you have protoc available in your path.
-Note: The protobufs are automatically compiled every time rust builds.
-
-```
-$ protoc -I=./protos --python_out=./protos/python ./proto/message.proto
-```
-
 ## Build Python Wheel
+During this step we:
+- Build and install the Python wheel
+- Compile the protos for Python use and output to the ./src/syft/protos directory
 
-Inside the virtualenv:
+
+If you are using pipenv:
 
 ```
 $ cd platforms/python
 $ pipenv shell
+$ touch build.rs
 $ maturin build -i python
 $ pip install `find -L ./target/wheels -name "*.whl"`
 ```
+
+If you are using conda and have you conda environment activated (```conda activate syft```):
+
+```
+$ cd platforms/python
+$ touch build.rs
+$ maturin build -i python
+$ pip install `find -L ./target/wheels -name "*.whl"`
+```
+

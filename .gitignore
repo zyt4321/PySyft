@@ -20,4 +20,5 @@ docs/_modules
 .coverage
 .vscode/
 **/pip-wheel-metadata
-
+/src/syft/protos/*
+!/src/syft/protos/README.md
