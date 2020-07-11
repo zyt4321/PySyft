@@ -166,6 +166,12 @@ $ pipenv install --dev --skip-lock
 
 #### Conda
 
+Create your conda environment, navigate to the ./core/platforms/python directory:
+
+```
+conda create --name syft --file spec-file.txt
+```
+
 #### pip and virtualenv
 
 Create a virtualenv in the PySyft/core/platforms/python folder and install the packages inside requirements.txt
