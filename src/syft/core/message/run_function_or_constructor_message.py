@@ -1,5 +1,5 @@
 from .syft_message import SyftMessage
-from typing import Any
+from typing import Any, List, Dict
 
 
 class RunFunctionOrConstructorMessage(SyftMessage):
