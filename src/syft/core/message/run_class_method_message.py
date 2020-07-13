@@ -11,6 +11,6 @@ class RunClassMethodMessage(SyftMessage):
         kwargs: Dict[Any, Any],
         id_at_location: str,
     ):
-        super.__init__(
+        super().__init__(
             path=path, obj=_self, args=args, kwargs=kwargs, id_remote=id_at_location
         )

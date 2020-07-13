@@ -20,3 +20,6 @@ torch>=1.5
 typeguard
 pyscaffold[all]
 black
+pytest
+pytest-cov
+protobuf

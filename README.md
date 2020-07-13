@@ -2,7 +2,6 @@
 
 A library for computing on data you do not own and cannot see.
 
-
 ## Description
 
 Most software libraries let you compute over information you own and see inside of machines you control. However, this means that you cannot compute on information without first obtaining (at least partial) ownership of that information. It also means that you cannot compute using machines without first obtaining control over those machines. This is very limiting to human collaboration in all areas of life and systematically drives the centralization of data, because you cannot work with a bunch of data without first putting it all in one (central) place.
@@ -11,8 +10,8 @@ The Syft ecosystem seeks to change this system, allowing you to write software w
 
 This library is the centerpiece of the Syft ecosystem. It has two primary purposes. You can either use PySyft to:
 
-1) *Dynamic:* Directly compute over data you cannot see.
-2) *Static:* Create static graphs of computation which can be deployed/scaled at a later date on different compute.
+1. _Dynamic:_ Directly compute over data you cannot see.
+2. _Static:_ Create static graphs of computation which can be deployed/scaled at a later date on different compute.
 
 The Syft ecosystem includes libraries which allow for communication with and computation over a variety of runtimes:
 
@@ -35,6 +34,28 @@ If you would like to become a user of PySyft, please progress to our User Docume
 ## Want to Develop PySyft?
 
 If you would like to become a developer of PySyft, please see our Contributor Documentation. This documentation will help you setup your development environment, give you a roadmap for learning the codebase, and help you find your first project to contribute.
+
+## Tests
+
+The test suite is written with pytest. To run the tests you need to do the following:
+
+- Build syft_core Python wheel  
+  See [README.md](core/README.md)
+- Create a virtualenv in the root syft folder using your favourite virtualenv tool
+- Install the syft core python wheel
+
+On Linux and MacOS:
+
+```
+$ pip install `find -L ./core -name "*.whl"`
+```
+
+- Install the requirements.txt
+- Run pytest
+
+```
+$ pytest
+```
 
 ## Note
 
