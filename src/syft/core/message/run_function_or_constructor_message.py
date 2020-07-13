@@ -1,8 +1,7 @@
 from .syft_message import SyftMessage
+from typing import Any
 
 
 class RunFunctionOrConstructorMessage(SyftMessage):
-    def __init__(self, path, args, kwargs):
-        self.path = path
-        self.args = args
-        self.kwargs = kwargs
+    def __init__(self, path: str, args: List[Any], kwargs: Dict[Any, Any]):
+        super.__init__(path=path, args=args, kwargs=kwargs)

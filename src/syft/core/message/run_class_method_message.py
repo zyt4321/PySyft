@@ -1,10 +1,16 @@
 from .syft_message import SyftMessage
+from typing import Any
 
 
 class RunClassMethodMessage(SyftMessage):
-    def __init__(self, path, _self, args, kwargs, id_at_location):
-        self.path = path
-        self._self = _self
-        self.args = args
-        self.kwargs = kwargs
-        self.id_at_location = id_at_location
+    def __init__(
+        self,
+        path: str,
+        _self: Any,
+        args: List[Any],
+        kwargs: Dict[Any, Any],
+        id_at_location: str,
+    ):
+        super.__init__(
+            path=path, obj=_self, args=args, kwargs=kwargs, id_remote=id_at_location
+        )
