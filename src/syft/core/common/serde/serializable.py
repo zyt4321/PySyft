@@ -14,6 +14,7 @@ from typing_extensions import GenericMeta as GenericM  # type: ignore
 from ....decorators import syft_decorator
 from ....proto.util.json_message_pb2 import JsonMessage
 from ....util import get_fully_qualified_name
+from ....util import random_name
 
 
 # GenericMeta Fixes python 3.6
@@ -156,7 +157,7 @@ class Serializable(metaclass=MetaSerializable):
     def get_protobuf_schema() -> GeneratedProtocolMessageType:
         """ Return the type of protobuf object which stores a class of this type
 
-        As a part of serializatoin and deserialization, we need the ability to
+        As a part of serialization and deserialization, we need the ability to
         lookup the protobuf object type directly from the object type. This
         static method allows us to do this.
 
@@ -321,3 +322,7 @@ class Serializable(metaclass=MetaSerializable):
                             one of the arguments of the serialize() method such as:
                             to_proto, to_json, to_binary, or to_hex."""
             )
+
+    @staticmethod
+    def random_name() -> str:
+        return random_name()

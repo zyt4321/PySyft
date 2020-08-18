@@ -48,7 +48,7 @@ class AbstractMessage(ObjectWithID, Generic[SignedMessageT]):
         init_reason = "Creating"
         if "signed" in self.class_name.lower():
             init_reason += " Signed"
-        print(f"> {init_reason} {self.pprint}")
+        print(f"> {init_reason} {self.pprint} {self.id.emoji()}")
 
 
 class SyftMessage(AbstractMessage):
@@ -65,6 +65,7 @@ class SyftMessage(AbstractMessage):
         # for example ReprMessage -> ImmediateSyftMessageWithoutReply.signed_type
         # == SignedImmediateSyftMessageWithoutReply
         return self.signed_type(
+            msg_id=self.id,
             address=self.address,
             obj_type=get_fully_qualified_name(obj=self),
             signature=signed_message.signature,
@@ -86,8 +87,9 @@ class SignedMessage(SyftMessage):
         signature: bytes,
         verify_key: VerifyKey,
         message: bytes,
+        msg_id: Optional[UID] = None,
     ) -> None:
-        super().__init__(address=address)
+        super().__init__(msg_id=msg_id, address=address)
         self.obj_type = obj_type
         self.signature = signature
         self.verify_key = verify_key
@@ -115,14 +117,14 @@ class SignedMessage(SyftMessage):
     def _object2proto(self) -> SignedMessage_PB:
         print(f"> {self.icon} -> Proto 🔢")
 
-        proto = SignedMessage_PB()
         # obj_type will be the final subclass callee for example ReprMessage
-        proto.obj_type = self.obj_type
-        proto.signature = bytes(self.signature)
-        proto.verify_key = bytes(self.verify_key)
-        proto.message = self.serialized_message
-
-        return proto
+        return SignedMessage_PB(
+            msg_id=self.id.proto(),
+            obj_type=self.obj_type,
+            signature=bytes(self.signature),
+            verify_key=bytes(self.verify_key),
+            message=self.serialized_message,
+        )
 
     @staticmethod
     @syft_decorator(typechecking=True)
@@ -138,8 +140,8 @@ class SignedMessage(SyftMessage):
         module_parts = proto.obj_type.split(".")
         klass = module_parts.pop()
         obj_type = getattr(sys.modules[".".join(module_parts)], klass)
-
         obj = obj_type.signed_type(
+            msg_id=_deserialize(blob=proto.msg_id),
             address=address,
             obj_type=proto.obj_type,
             signature=proto.signature,
