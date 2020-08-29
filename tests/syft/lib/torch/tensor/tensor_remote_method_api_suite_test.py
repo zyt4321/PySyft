@@ -7,7 +7,7 @@ types and ensure that they can be executed in a remote environment.
 from syft.lib.torch import allowlist
 from syft.core.pointer.pointer import Pointer
 from syft.lib.torch.tensor_util import TORCH_STR_DTYPE
-from syft.lib.python.primitive import isprimitive
+# from syft.lib.python.primitive import isprimitive
 
 import syft as sy
 import torch as th
@@ -243,7 +243,7 @@ def test_all_allowlisted_tensor_methods_work_remotely_on_all_types(
         try:
             # TODO: We should detect tensor vs primitive in a more reliable way
             # set all NaN to 0
-            if isprimitive(value=target_result):
+            if isinstance(target_result, (bool, int, float)):
                 # check that it matches functionally
                 assert local_result == target_result
                 # unbox the real value for type comparison below
