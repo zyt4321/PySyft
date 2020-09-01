@@ -48,6 +48,16 @@ at https://github.com/OpenMined/PySyft. Something like the following:
     CONTRIBUTING.md  __init__.py      docs             requirements.txt setup.py         untitled.md
 
 
+Before we proceed, we need to switch to the syft_0.3.0 branch of PySyft so that we install
+0.3.0. You can switch by running the following command.
+
+.. code:: console
+
+    git checkout syft_0.3.0
+
+And you're good to go to the next step!
+
+
 Step 2 - Check Python Version
 -----------------------------
 
