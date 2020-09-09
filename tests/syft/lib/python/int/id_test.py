@@ -12,8 +12,8 @@ def test_id_abs():
     py_res = python_int.__abs__()
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id
+    assert res._id != test_int.id
 
 
 def test_id_add():
@@ -21,8 +21,8 @@ def test_id_add():
     py_res = python_int.__add__(other)
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id
+    assert res._id != test_int._id
 
 
 def test_id_and():
@@ -30,8 +30,8 @@ def test_id_and():
     py_res = python_int.__and__(other)
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id
+    assert res._id != test_int._id
 
 
 def test_id_bool():
@@ -39,8 +39,8 @@ def test_id_bool():
     py_res = python_int.__bool__()
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id
+    assert res._id != test_int._id
 
 
 def test_id_ceil():
@@ -48,15 +48,15 @@ def test_id_ceil():
     py_res = python_int.__ceil__()
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_divmod():
     q, r = test_int.__divmod__(other)
 
-    assert q.id
-    assert r.id
+    assert q._id is not None
+    assert r._id is not None
 
 
 def test_id_eq():
@@ -64,8 +64,8 @@ def test_id_eq():
     py_res = python_int.__eq__(other)
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_float():
@@ -73,8 +73,8 @@ def test_id_float():
     py_res = python_int.__float__()
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_floor():
@@ -82,8 +82,8 @@ def test_id_floor():
     py_res = python_int.__floor__()
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_floordiv():
@@ -91,8 +91,8 @@ def test_id_floordiv():
     py_res = python_int.__floordiv__(other)
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int.id
 
 
 def test_id_ge():
@@ -100,8 +100,8 @@ def test_id_ge():
     py_res = python_int.__ge__(other)
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_gt():
@@ -109,8 +109,8 @@ def test_id_gt():
     py_res = python_int.__gt__(other)
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_hash():
@@ -118,36 +118,36 @@ def test_id_hash():
     py_res = python_int.__hash__()
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_iadd():
     res = test_int.__iadd__(other)
 
-    assert res.id
-    assert res.id == test_int.id
+    assert res._id is not None
+    assert res._id == test_int.id
 
 
 def test_id_ifloordiv():
     res = test_int.__ifloordiv__(other)
 
-    assert res.id
-    assert res.id == test_int.id
+    assert res._id is not None
+    assert res._id == test_int.id
 
 
 def test_id_imod():
     res = test_int.__imod__(other)
 
-    assert res.id
-    assert res.id == test_int.id
+    assert res._id is not None
+    assert res._id == test_int.id
 
 
 def test_id_imul():
     res = test_int.__imul__(other)
 
-    assert res.id
-    assert res.id == test_int.id
+    assert res._id is not None
+    assert res._id == test_int.id
 
 
 def test_id_int():
@@ -155,8 +155,8 @@ def test_id_int():
     py_res = python_int.__int__()
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_invert():
@@ -164,29 +164,29 @@ def test_id_invert():
     py_res = python_int.__invert__()
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_ipow():
     res = test_int.__ipow__(other)
 
-    assert res.id
-    assert res.id == test_int.id
+    assert res._id is not None
+    assert res._id == test_int.id
 
 
 def test_id_isub():
     res = test_int.__isub__(other)
 
-    assert res.id
-    assert res.id == test_int.id
+    assert res._id is not None
+    assert res._id == test_int.id
 
 
 def test_id_itruediv():
     res = test_int.__itruediv__(other)
 
-    assert res.id
-    assert res.id == test_int.id
+    assert res._id is not None
+    assert res._id == test_int.id
 
 
 def test_id_le():
@@ -194,8 +194,8 @@ def test_id_le():
     py_res = python_int.__le__(other)
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_lshift():
@@ -203,8 +203,8 @@ def test_id_lshift():
     py_res = python_int.__lshift__(other)
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_lt():
@@ -212,8 +212,8 @@ def test_id_lt():
     py_res = python_int.__lt__(other)
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_mod():
@@ -221,8 +221,8 @@ def test_id_mod():
     py_res = python_int.__mod__(other)
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_mul():
@@ -230,8 +230,8 @@ def test_id_mul():
     py_res = python_int.__mul__(other)
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id
 
 
 def test_id_ne():
@@ -239,5 +239,5 @@ def test_id_ne():
     py_res = python_int.__ne__(other)
 
     assert res == py_res
-    assert res.id
-    assert res.id != test_int.id
+    assert res._id is not None
+    assert res._id != test_int._id

@@ -31,12 +31,12 @@ class Int(int, PyPrimitive):
 
     @syft_decorator(typechecking=True, prohibit_args=False)
     def __init__(self, value: Any = None, base: Any = 10, id: Optional[UID] = None):
+        PyPrimitive.__eq__(self, UID() if id is None else id)
+
         if value is None:
             value = 0
 
         int.__init__(value)
-
-        self._id: UID = UID() if id is None else id
 
     @syft_decorator(typechecking=True, prohibit_args=False)
     def __add__(self, other: Any) -> PyPrimitive:
