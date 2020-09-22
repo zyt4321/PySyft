@@ -324,7 +324,8 @@ class PointerTensor(ObjectPointer, AbstractTensor):
             object used to point to #on a remote machine.
         """
         tensor = ObjectPointer.get(self, user=user, reason=reason, deregister_ptr=deregister_ptr)
-
+        if hasattr(tensor, "object"):
+            tensor = tensor.object
         # TODO: remove these 3 lines
         # The fact we have to check this means
         # something else is probably broken

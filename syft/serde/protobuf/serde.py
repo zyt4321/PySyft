@@ -3,10 +3,12 @@ from collections import OrderedDict
 import inspect
 import re
 from dataclasses import dataclass
+import torch
 
 import syft
 from syft.messaging.message import ObjectMessage
 from syft.messaging.message import TensorCommandMessage
+from syft.messaging.message import ObjectRequestMessage
 from syft.serde import compression
 from syft.workers.abstract import AbstractWorker
 
@@ -366,12 +368,16 @@ def serialize(
     protobuf_obj = _bufferize(worker, obj)
 
     obj_type = type(obj)
-    if isinstance(obj_type, None):
+    if isinstance(obj_type, type(None)):
         msg_wrapper.contents_empty_msg.CopyFrom(protobuf_obj)
     elif obj_type == ObjectMessage:
         msg_wrapper.contents_object_msg.CopyFrom(protobuf_obj)
     elif obj_type == TensorCommandMessage:
         msg_wrapper.contents_action_msg.CopyFrom(protobuf_obj)
+    elif obj_type == ObjectRequestMessage:
+        msg_wrapper.contents_object_request_msg.CopyFrom(protobuf_obj)
+    elif obj_type == torch.Tensor:
+        msg_wrapper.contents_object_msg.tensor.CopyFrom(protobuf_obj)
 
     # 2) Serialize
     # serialize into a binary
@@ -425,6 +431,8 @@ def deserialize(binary: bin, worker: AbstractWorker = None, unbufferizes=True) -
 
     # 3) Convert back to a Python object
     message_type = msg_wrapper.WhichOneof("contents")
+    if message_type is None:
+        return None
     python_obj = _unbufferize(worker, getattr(msg_wrapper, message_type))
     return python_obj
 
