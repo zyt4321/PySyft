@@ -7,8 +7,8 @@ the function apply_compress_scheme.
 
 from typing import Callable
 
-from syft.serde.msgpack import serialize as msgpack_serialize
-from syft.serde.msgpack import deserialize as msgpack_deserialize
+from syft.serde.protobuf import serialize as msgpack_serialize
+from syft.serde.protobuf import deserialize as msgpack_deserialize
 
 
 ## SECTION:  High Level Public Functions (these are the ones you use)
