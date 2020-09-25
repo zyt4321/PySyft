@@ -197,8 +197,8 @@ def test_all_allowlisted_tensor_methods_work_remotely_on_all_types(
         th.tensor(self_tensor, dtype=t_type),
     )
 
-    # Copy the UID over so that its easier to see they are supposed to be the same obj
-    self_tensor_copy.id = self_tensor.id  # type: ignore
+    # we no longer have .id's on torch.Tensor by default
+    # self_tensor_copy.id = self_tensor.id  # type: ignore
 
     args: List[Any] = []
 
