@@ -132,6 +132,8 @@ class WebRTCConnection(BidirectionalConnection):
         except RuntimeError as e:
             self.loop = None
             print(f"♫♫♫ > ...error getting a running event Loop... {e}")
+            print(f"♫♫♫ > If you're running in JUPYTER NOTEBOOK, "
+                  f"are you running jupyter-notebook version >= 6.1.4? {e}")
 
         if self.loop is None:
             print("♫♫♫ > ...creating a new event loop...")
