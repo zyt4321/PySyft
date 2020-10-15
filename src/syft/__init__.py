@@ -38,6 +38,12 @@ supported Python libs.
 
 To begin your education in Syft, continue to the :py:mod:`syft.core.node.vm.vm` module...
 """
+
+# LIBRARY CONFIG
+
+# do you want verbose logging to help with debugging?
+VERBOSE = True
+
 # stdlib
 from pathlib import Path
 import sys
@@ -91,7 +97,4 @@ finally:
 sys.path.append(str(Path(__file__)))
 
 
-# LIBRARY CONFIG
 
-# do you want verbose logging to help with debugging?
-VERBOSE = True
