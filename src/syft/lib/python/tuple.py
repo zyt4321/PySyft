@@ -144,7 +144,7 @@ class TupleWrapper(StorableObject):
             return _object2proto()
 
     @staticmethod
-    def _data_proto2object(proto: Tuple_PB) -> Tuple:
+    def _data_proto2object(proto: Tuple_PB) -> "TupleWrapper":
         return Tuple._proto2object(proto=proto)
 
     @staticmethod

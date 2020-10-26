@@ -25,23 +25,19 @@ from .util import downcast
 
 
 class KeysIterator(Iterator):
-    def __next__(self):
-        return next(self._obj_ref)
+    pass
 
 
 class ValuesIterator(Iterator):
-    def __next__(self):
-        return next(self._obj_ref)
+    pass
 
 
 class ItemsIterator(Iterator):
-    def __next__(self):
-        return next(self._obj_ref)
+    pass
 
 
 class DictIterator(Iterator):
-    def __next__(self):
-        return next(self._obj_ref)
+    pass
 
 
 class Dict(UserDict, PyPrimitive):
@@ -117,18 +113,8 @@ class Dict(UserDict, PyPrimitive):
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def __ge__(self, other: Any) -> SyPrimitiveRet:
-        res = super().__ge__(other)
-        return PrimitiveFactory.generate_primitive(value=res)
-
-    @syft_decorator(typechecking=True, prohibit_args=False)
     def __getitem__(self, key: Any) -> SyPrimitiveRet:
         res = super().__getitem__(key)
-        return PrimitiveFactory.generate_primitive(value=res)
-
-    @syft_decorator(typechecking=True, prohibit_args=False)
-    def __gt__(self, other: Any) -> SyPrimitiveRet:
-        res = super().__gt__(other)
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
@@ -142,18 +128,8 @@ class Dict(UserDict, PyPrimitive):
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def __le__(self, other: Any) -> SyPrimitiveRet:
-        res = super().__le__(other)
-        return PrimitiveFactory.generate_primitive(value=res)
-
-    @syft_decorator(typechecking=True, prohibit_args=False)
     def __len__(self) -> SyPrimitiveRet:
         res = super().__len__()
-        return PrimitiveFactory.generate_primitive(value=res)
-
-    @syft_decorator(typechecking=True, prohibit_args=False)
-    def __lt__(self, other: Any) -> SyPrimitiveRet:
-        res = super().__lt__(other)
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)

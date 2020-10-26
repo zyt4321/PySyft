@@ -124,7 +124,9 @@ class List(UserList, PyPrimitive):
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def sort(self, key: Callable = None, reverse: bool = False) -> SyPrimitiveRet:
+    def sort(
+        self, key: Optional[Callable] = None, reverse: bool = False
+    ) -> SyPrimitiveRet:
         super().sort(key=key, reverse=reverse)
         return SyNone
 

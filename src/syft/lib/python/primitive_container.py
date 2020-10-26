@@ -8,7 +8,7 @@ from .util import SyPrimitiveRet
 
 class Any:
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def __iter__(self) -> SyPrimitiveRet:
+    def __iter__(self) -> "Any":
         return self
 
     @syft_decorator(typechecking=True, prohibit_args=False)

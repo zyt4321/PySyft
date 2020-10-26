@@ -1,5 +1,5 @@
 # stdlib
-from typing import Any
+from typing import Any as AnyType
 from typing import Callable as CallableT
 from typing import Dict
 from typing import List
@@ -55,9 +55,9 @@ class Class(Callable):
             different methods each time with a different internal attr_path_and_name variable."""
 
             def run_class_method(
-                __self: Any,
-                *args: Tuple[Any, ...],
-                **kwargs: Any,
+                __self: AnyType,
+                *args: Tuple[AnyType, ...],
+                **kwargs: AnyType,
             ) -> object:
                 # we want to get the return type which matches the attr_path_and_name
                 # so we ask lib_ast for the return type name that matches out
@@ -121,7 +121,7 @@ class Class(Callable):
             if attr_path_and_name is not None:
                 attrs[attr_name] = get_run_class_method(attr_path_and_name)
 
-        def getattribute(__self: Any, name: str) -> Any:
+        def getattribute(__self: AnyType, name: str) -> AnyType:
             # we need to override the __getattribute__ of our Pointer class
             # so that if you ever access a property on a Pointer it will not just
             # get the wrapped run_class_method but also execute it immediately
@@ -156,8 +156,8 @@ class Class(Callable):
         setattr(klass_pointer, "__getattribute__", getattribute)
         setattr(self, self.pointer_name, klass_pointer)
 
-    def create_send_method(outer_self: Any) -> None:
-        def send(self: Any, client: Any, searchable: bool = False) -> Pointer:
+    def create_send_method(outer_self: AnyType) -> None:
+        def send(self: AnyType, client: AnyType, searchable: bool = False) -> Pointer:
             # we need to generate an ID now because we removed the generic ID creation
             id_ = getattr(self, "id", None)
             if id_ is None:
@@ -189,15 +189,15 @@ class Class(Callable):
         # using curse because Numpy tries to lock down custom attributes
         aggressive_set_attr(obj=outer_self.ref, name="send", attr=send)
 
-    def create_storable_object_attr_convenience_methods(outer_self: Any) -> None:
-        def tag(self: Any, *tags: Tuple[Any, ...]) -> object:
+    def create_storable_object_attr_convenience_methods(outer_self: AnyType) -> None:
+        def tag(self: AnyType, *tags: Tuple[AnyType, ...]) -> object:
             self.tags = list(tags)
             return self
 
         # using curse because Numpy tries to lock down custom attributes
         aggressive_set_attr(obj=outer_self.ref, name="tag", attr=tag)
 
-        def describe(self: Any, description: str) -> object:
+        def describe(self: AnyType, description: str) -> object:
             self.description = description
             # QUESTION: Is this supposed to return self?
             # WHY? Chaining?
@@ -239,7 +239,7 @@ class Class(Callable):
         aggressive_set_attr(obj=outer_self.ref, name="hex", attr=Serializable.hex)
 
 
-def ispointer(obj: Any) -> bool:
+def ispointer(obj: AnyType) -> bool:
     if (
         type(obj).__name__.endswith("Pointer")
         and type(getattr(obj, "id_at_location", None)) is UID
@@ -248,14 +248,16 @@ def ispointer(obj: Any) -> bool:
     return False
 
 
-def convert_param_to_remote_pointer(param: Any, client: Any) -> Pointer:
+def convert_param_to_remote_pointer(param: AnyType, client: AnyType) -> Pointer:
     pointer = param.send(client)
     return pointer
 
 
 def pointerize_args_and_kwargs(
-    args: Union[List[Any], Tuple[Any, ...]], kwargs: Dict[Any, Any], client: Any
-) -> Tuple[List[Any], Dict[Any, Any]]:
+    args: Union[List[AnyType], Tuple[AnyType, ...]],
+    kwargs: Dict[AnyType, AnyType],
+    client: AnyType,
+) -> Tuple[List[AnyType], Dict[AnyType, AnyType]]:
     # When we try to send params to a remote function they need to be pointers so
     # that they can be serialized and fetched from the remote store on arrival
     # this ensures that any args which are passed in from the user side are first

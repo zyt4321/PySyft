@@ -2,8 +2,6 @@
 from typing import Any
 from typing import List
 from typing import Optional
-from typing import Tuple
-from typing import Union
 
 # third party
 from google.protobuf.reflection import GeneratedProtocolMessageType

@@ -109,8 +109,8 @@ class String(UserString, PyPrimitive):
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def __ne__(self) -> PyPrimitive:
-        res = super().__ne__()
+    def __ne__(self, other: Any) -> PyPrimitive:
+        res = super().__ne__(other)
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
@@ -160,12 +160,12 @@ class String(UserString, PyPrimitive):
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def expandtabs(self, tabsize: int = ...) -> PyPrimitive:
+    def expandtabs(self, tabsize: int = 8) -> PyPrimitive:
         res = super().expandtabs(tabsize)
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def find(self, sub: Any, start: int = ..., end: int = ...) -> PyPrimitive:
+    def find(self, sub: Any, start: int = 0, end: int = sys.maxsize) -> PyPrimitive:
         res = super().find(sub, start, end)
         return PrimitiveFactory.generate_primitive(value=res)
 
@@ -180,7 +180,7 @@ class String(UserString, PyPrimitive):
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def index(self, sub: Any, start: int = ..., end: int = ...) -> PyPrimitive:
+    def index(self, sub: Any, start: int = 0, end: int = sys.maxsize) -> PyPrimitive:
         res = super().index(sub, start, end)
         return PrimitiveFactory.generate_primitive(value=res)
 
@@ -255,27 +255,27 @@ class String(UserString, PyPrimitive):
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def lstrip(self, chars: Optional[str] = ...) -> PyPrimitive:
+    def lstrip(self, chars: Optional[str] = None) -> PyPrimitive:
         res = super().lstrip(chars)
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def partition(self, sep: Any) -> PyPrimitive:
+    def partition(self, sep: str) -> PyPrimitive:
         res = super().partition(sep)
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def replace(self, old: Any, new: Any, maxsplit: int = ...) -> PyPrimitive:
+    def replace(self, old: Any, new: Any, maxsplit: int = -1) -> PyPrimitive:
         res = super().replace(old, new, maxsplit)
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def rfind(self, sub: Any, start: int = ..., end: int = ...) -> PyPrimitive:
+    def rfind(self, sub: Any, start: int = 0, end: int = sys.maxsize) -> PyPrimitive:
         res = super().rfind(sub, start, end)
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def rindex(self, sub: Any, start: int = ..., end: int = ...) -> PyPrimitive:
+    def rindex(self, sub: Any, start: int = 0, end: int = sys.maxsize) -> PyPrimitive:
         res = super().rindex(sub, start, end)
         return PrimitiveFactory.generate_primitive(value=res)
 
@@ -285,27 +285,27 @@ class String(UserString, PyPrimitive):
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def rpartition(self, sep: Any) -> PyPrimitive:
+    def rpartition(self, sep: str) -> PyPrimitive:
         res = super().rpartition(sep)
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def rsplit(self, sep: Optional[Any] = ..., maxsplit: int = ...) -> PyPrimitive:
+    def rsplit(self, sep: Optional[str] = None, maxsplit: int = -1) -> PyPrimitive:
         res = super().rsplit()
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def rstrip(self, chars: Optional[Any] = ...) -> PyPrimitive:
+    def rstrip(self, chars: Optional[str] = None) -> PyPrimitive:
         res = super().rstrip(chars)
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def split(self, sep: Optional[Any] = ..., maxsplit: int = ...) -> PyPrimitive:
+    def split(self, sep: Optional[str] = None, maxsplit: int = -1) -> PyPrimitive:
         res = super().split()
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def splitlines(self, keepends: Any = ...) -> PyPrimitive:
+    def splitlines(self, keepends: bool = False) -> PyPrimitive:
         res = super().splitlines()
         return PrimitiveFactory.generate_primitive(value=res)
 
@@ -317,7 +317,7 @@ class String(UserString, PyPrimitive):
         return PrimitiveFactory.generate_primitive(value=res)
 
     @syft_decorator(typechecking=True, prohibit_args=False)
-    def strip(self, chars: Optional[str] = ...) -> PyPrimitive:
+    def strip(self, chars: Optional[str] = None) -> PyPrimitive:
         res = super().strip(chars)
         return PrimitiveFactory.generate_primitive(value=res)
 

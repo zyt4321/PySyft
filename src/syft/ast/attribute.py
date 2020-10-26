@@ -1,6 +1,6 @@
 # stdlib
 from abc import ABC
-from typing import Any
+from typing import Any as AnyType
 from typing import Callable as CallableT
 from typing import Dict
 from typing import List
@@ -12,7 +12,7 @@ from .. import ast
 
 
 class Attribute(ABC):
-    client: Optional[Any]
+    client: Optional[AnyType]
 
     def __init__(
         self,
@@ -31,7 +31,7 @@ class Attribute(ABC):
         self.return_type_name = return_type_name
         self.is_property = is_property
 
-    def set_client(self, client: Any) -> None:
+    def set_client(self, client: AnyType) -> None:
         self.client = client
         for _, attr in self.attrs.items():
             if hasattr(attr, "set_client"):

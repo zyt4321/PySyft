@@ -2,8 +2,6 @@
 from typing import Any
 from typing import List
 from typing import Optional
-from typing import Tuple
-from typing import Union
 
 # third party
 from google.protobuf.reflection import GeneratedProtocolMessageType
@@ -18,7 +16,6 @@ from ...proto.lib.python.int_pb2 import Int as Int_PB
 from ...util import aggressive_set_attr
 from .primitive_factory import PrimitiveFactory
 from .primitive_interface import PyPrimitive
-from .util import NotImplementedType
 from .util import SyPrimitiveRet
 
 

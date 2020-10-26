@@ -13,7 +13,7 @@ from .dict import Dict
 from .float import Float
 from .int import Int
 from .list import List
-from .none import SyNone
+from .none import SyNone  # noqa: F401
 from .none import _SyNone
 from .primitive_container import Any
 from .primitive_interface import PyPrimitive
@@ -44,7 +44,7 @@ def add_modules(ast: Globals, modules: TypeList[str]) -> None:
         )
 
 
-def add_classes(ast: Globals, paths: TypeList[TypeTuple[str, str, Any]]) -> None:
+def add_classes(ast: Globals, paths: TypeList[TypeTuple[str, str, TypeAny]]) -> None:
     for path, return_type, ref in paths:
         parent = get_parent(path, ast)
         attr_name = path.rsplit(".", 1)[-1]
@@ -60,7 +60,7 @@ def add_classes(ast: Globals, paths: TypeList[TypeTuple[str, str, Any]]) -> None
         )
 
 
-def add_methods(ast: Globals, paths: TypeList[TypeTuple[str, str, Any]]) -> None:
+def add_methods(ast: Globals, paths: TypeList[TypeTuple[str, str, TypeAny]]) -> None:
     for path, return_type, _ in paths:
         parent = get_parent(path, ast)
         path_list = path.split(".")

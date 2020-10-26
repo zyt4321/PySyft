@@ -1,5 +1,5 @@
 # stdlib
-from typing import Any
+from typing import Any as AnyType
 from typing import Callable as CallableT
 from typing import List
 from typing import Optional
@@ -17,15 +17,15 @@ from .util import unsplit
 
 
 class Callable(ast.attribute.Attribute):
-    client: Optional[Any]
+    client: Optional[AnyType]
 
     """A method, function, or constructor which can be directly executed"""
 
     def __call__(
         self,
-        *args: Tuple[Any, ...],
+        *args: Tuple[AnyType, ...],
         return_callable: bool = False,
-        **kwargs: Any,
+        **kwargs: AnyType,
     ) -> Optional[Union["Callable", CallableT]]:
         if (
             hasattr(self, "client")

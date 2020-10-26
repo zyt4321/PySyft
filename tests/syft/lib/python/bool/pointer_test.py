@@ -66,7 +66,6 @@ inputs = {
     "__truediv__": [[42], [256]],
     "__xor__": [[True], [False]],
     "__trunc__": [[]],
-    "as_integer_ratio": [[]],
     "bit_length": [[]],
     "conjugate": [[]],
 }
@@ -87,23 +86,23 @@ def test_pointer_objectives(test_objects, func):
     possible_inputs = inputs[func]
 
     for possible_input in possible_inputs:
-        py_res, py_e, sy_res, sy_e, remote_sy = None, None, None, None, None
+        py_res, py_e, sy_res, sy_e, remote_sy_res = None, None, None, None, None
 
         try:
             py_res = py_method(*possible_input)
-        except Exception as py_e:
+        except Exception as py_e:  # noqa: F841
             py_res = str(py_e)
 
         try:
             sy_res = sy_method(*possible_input)
-        except Exception as sy_e:
+        except Exception as sy_e:  # noqa: F841
             sy_res = str(sy_e)
 
         try:
             remote_sy_res = remote_sy_method(*possible_input)
             get_permission(remote_sy_res)
             remote_sy_res = remote_sy_res.get()
-        except Exception as remote_sy_e:
+        except Exception as remote_sy_e:  # noqa: F841
             remote_sy_res = str(remote_sy_e)
 
         if isinstance(py_res, float):
