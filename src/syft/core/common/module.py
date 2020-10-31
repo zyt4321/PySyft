@@ -132,30 +132,29 @@ class Module:
                         log = f"> Downloading remote: {n}"
                         print(log)
                         logger.debug(log)
-                        state_dict = sd_ptr.get(
-                            request_block=True,
+                        state_dict = sd_ptr.request(
                             request_name=request_name,
                             reason=reason,
-                            timeout_secs=timeout_secs,
-                            delete_obj=delete_obj,
                         )
+                        state_dict = sd_ptr.get(delete_obj=False)
                         # iterate through the key, values
                         # weights and biases should be in there
-                        for key, value in state_dict.items():
-                            key_str = key.upcast()
-                            # if the local models module has the same property
-                            # e.g. .weight or .bias
-                            if hasattr(local_m, key_str):
-                                # if the downloaded value is not a Parameter
-                                # its a tensor so we need to convert it
-                                if not issubclass(type(value), torch.nn.Parameter):
-                                    value = torch.nn.Parameter(value)
+                        if hasattr(state_dict, "items"):
+                            for key, value in state_dict.items():
+                                key_str = key.upcast()
+                                # if the local models module has the same property
+                                # e.g. .weight or .bias
+                                if hasattr(local_m, key_str):
+                                    # if the downloaded value is not a Parameter
+                                    # its a tensor so we need to convert it
+                                    if not issubclass(type(value), torch.nn.Parameter):
+                                        value = torch.nn.Parameter(value)
 
-                                # set it
-                                setattr(local_m, key_str, value)
-                                log = f">> Setting {key_str} copy on local {n}"
-                                print(log)
-                                logger.debug(log)
+                                    # set it
+                                    setattr(local_m, key_str, value)
+                                    log = f">> Setting {key_str} copy on local {n}"
+                                    print(log)
+                                    logger.debug(log)
                 log = "> Finished downloading model"
                 print(log)
                 logger.debug(log)

@@ -35,6 +35,8 @@ from .service.get_all_requests_service import GetAllRequestsService
 from .service.request_handler_service import GetAllRequestHandlersService
 from .service.request_handler_service import UpdateRequestHandlerService
 
+import threading
+
 
 class Domain(Node):
     domain: SpecificLocation
@@ -91,7 +93,8 @@ class Domain(Node):
         self.post_init()
 
         # run the handlers in an asyncio future
-        asyncio.ensure_future(self.run_handlers())
+        # asyncio.ensure_future(self.run_handlers())
+        # threading.Thread(self.run_handlers())
 
     @property
     def icon(self) -> str:
@@ -261,9 +264,11 @@ class Domain(Node):
         self.requests = alive_requests
 
     @syft_decorator(typechecking=True)
-    async def run_handlers(self) -> None:
+    def run_handlers(self) -> None:
         while True:
-            await asyncio.sleep(0.2)
+            logger.critical("ARE WE RUNNING???")
+            print("ARE WE RUNNING???")
+            time.sleep(0.2)
             self.clean_up_handlers()
             self.clean_up_requests()
             if len(self.request_handlers) > 0:
@@ -277,3 +282,23 @@ class Domain(Node):
                             if handled:
                                 # we handled the request so we can exit the loop
                                 break
+
+    # @syft_decorator(typechecking=True)
+    # async def run_handlers(self) -> None:
+    #     while True:
+    #         logger.critical("ARE WE RUNNING???")
+    #         print("ARE WE RUNNING???")
+    #         await asyncio.sleep(0.2)
+    #         self.clean_up_handlers()
+    #         self.clean_up_requests()
+    #         if len(self.request_handlers) > 0:
+    #             for request in self.requests:
+    #                 # check if we have previously already handled this in an earlier iter
+    #                 if request.id not in self.handled_requests:
+    #                     for handler in self.request_handlers:
+    #                         handled = self.check_handler(
+    #                             handler=handler, request=request
+    #                         )
+    #                         if handled:
+    #                             # we handled the request so we can exit the loop
+    #                             break

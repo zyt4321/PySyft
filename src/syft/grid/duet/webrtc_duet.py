@@ -163,6 +163,8 @@ class Duet(DomainClient):
 
     @syft_decorator(typechecking=True)
     async def notify(self) -> None:
+        logger.add("webrtc.log", level="INFO")
+        logger.critical("WHY ARE YOU NOT LOGGING!??")
         try:
             # Enqueue Pull/Push async tasks
             push_task = asyncio.ensure_future(self.push())

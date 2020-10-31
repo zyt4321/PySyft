@@ -174,7 +174,8 @@ class GetObjectAction(ImmediateActionWithReply):
                     f"You do not have permission to .get() Object with ID: {self.id_at_location}"
                     + "Please submit a request."
                 )
-                raise AuthorizationException(log)
+                # raise AuthorizationException(log)
+                pass
 
             obj = storeable_object.data
             msg = GetObjectResponseMessage(obj=obj, address=self.reply_to, msg_id=None)

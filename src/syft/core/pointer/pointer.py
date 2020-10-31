@@ -468,7 +468,7 @@ class Pointer(AbstractPointer):
             # it is a serialized pointer that we receive from another client do nothing
             return
 
-        if self.gc_enabled:
+        if False:
             # Create the delete message
             msg = GarbageCollectObjectAction(
                 id_at_location=self.id_at_location, address=self.client.address

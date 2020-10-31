@@ -7,11 +7,12 @@ from ...core.io.address import Address
 from ...core.io.connection import ClientConnection
 from ...core.io.route import SoloRoute
 from ...core.node.common.client import Client
+from ...core.node.domain.client import DomainClient
 from ...decorators.syft_decorator_impl import syft_decorator
 from ..services.signaling_service import RegisterNewPeerMessage
 
 
-class SignalingClient(object):
+class SignalingClient(DomainClient):
     def __init__(
         self, url: str, conn_type: ClientConnection, client_type: Client
     ) -> None:
@@ -37,8 +38,15 @@ class SignalingClient(object):
         route = SoloRoute(destination=spec_location, connection=conn)
 
         # Create a new signaling client using the selected client type
+        # signaling_client = client_type(  # type: ignore
+        #     network=spec_location,
+        #     name=name,
+        #     routes=[route],
+        #     signing_key=signing_key,
+        #     verify_key=verify_key,
+        # )
         signaling_client = client_type(  # type: ignore
-            network=spec_location,
+            domain=spec_location,
             name=name,
             routes=[route],
             signing_key=signing_key,
@@ -46,7 +54,23 @@ class SignalingClient(object):
         )
 
         self.__client = signaling_client
-        self.__register()
+        # self.__register()
+
+    @property
+    def store(self):
+        return self.__client.store
+
+    @property
+    def syft(self):
+        return self.__client.syft
+
+    @property
+    def torch(self):
+        return self.__client.torch
+
+    @property
+    def torchvision(self):
+        return self.__client.torchvision
 
     @property
     def address(self) -> Address:

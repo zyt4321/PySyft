@@ -166,6 +166,9 @@ class WebRTCConnection(BidirectionalConnection):
             # was established.
             self.channel: Optional[RTCDataChannel] = None
             self._client_address: Optional[Address] = None
+
+            asyncio.ensure_future(self.heartbeat())
+
         except Exception as e:
             log = f"Got an exception in WebRTCConnection __init__. {e}"
             logger.error(log)
@@ -302,6 +305,23 @@ class WebRTCConnection(BidirectionalConnection):
 
                 # If self.producer_pool.get() returned a message
                 # send it as a binary using the RTCDataChannel.
+                if type(msg) == SignedImmediateSyftMessageWithReply:
+                    logger.critical(
+                        f"{msg.id} produced by {self.node.name} {type(msg)} "
+                    )
+                # logger.critical(f"WTF {dir(self.peer_connection)}")
+                # logger.critical(
+                #     f"WTF2 {self.peer_connection._RTCPeerConnection__isClosed}"
+                # )
+                # logger.critical(
+                #     f"WTF3 {hasattr(self.peer_connection, '_RTCPeerConnection__isClosed')}"
+                # )
+                # logger.critical(
+                #     f"WTF4 {getattr(self.peer_connection, '_RTCPeerConnection__isClosed', None)}"
+                # )
+                if getattr(self.peer_connection, "_RTCPeerConnection__isClosed", False):
+                    logger.critical(f"FUCK SHIt THE COnNECtion IS GONE!!!!!")
+                # confirm the connection is still up
                 self.channel.send(msg.to_bytes())  # type: ignore
         except Exception as e:
             log = f"Got an exception in WebRTCConnection producer. {e}"
@@ -346,6 +366,7 @@ class WebRTCConnection(BidirectionalConnection):
             # made by the client instance that uses this connection as a route.
             # PS: The "_client_address" attribute will be defined during
             # Node Client initialization.
+            logger.critical(f"{_msg.id} consumed by {self.node.name}")
             if _msg.address != self._client_address:
                 # If it's a new service request, route it properly
                 # using the node instance owned by this connection.
@@ -353,6 +374,7 @@ class WebRTCConnection(BidirectionalConnection):
                 # Immediate message with reply
                 if isinstance(_msg, SignedImmediateSyftMessageWithReply):
                     reply = self.recv_immediate_msg_with_reply(msg=_msg)
+                    logger.critical(f"{_msg.id} reply by {self.node.name} {reply.id}")
                     await self.producer_pool.put(reply)
 
                 # Immediate message without reply
@@ -532,3 +554,21 @@ class WebRTCConnection(BidirectionalConnection):
                     log = f"send_sync_message timeout {timeout_secs} {r}"
                     logger.critical(log)
                     raise Exception(log)
+
+    async def heartbeat(self) -> None:
+        while True:
+            await asyncio.sleep(1)
+            try:
+                if getattr(self.peer_connection, "_RTCPeerConnection__isClosed", False):
+                    log = f"☠️ HEART BEAT DEAD! {self.node.name}"
+                    print(log)
+                    logger.critical(log)
+                else:
+                    log = f"❤️ HEART BEAT ALIVE! {self.node.name}"
+                    print(log)
+                    logger.critical(log)
+            except Exception as e:
+                log = f"HEART BEAT exception in {self.node.name}. {e}"
+                print(log)
+                logger.critical(log)
+                raise Exception(log)

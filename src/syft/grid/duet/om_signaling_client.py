@@ -1,4 +1,5 @@
 # syft relative
+from ...core.node.domain.client import DomainClient
 from ...core.node.network.client import NetworkClient
 from ..connections.http_connection import HTTPConnection
 from .signaling_client import SignalingClient
@@ -13,5 +14,14 @@ def register(
 ) -> SignalingClient:
     client = SignalingClient(
         url=url, conn_type=HTTPConnection, client_type=NetworkClient
+    )
+    return client
+
+
+def register_http(
+    url: str = WebRTC_HOST,
+) -> SignalingClient:
+    client = SignalingClient(
+        url=url, conn_type=HTTPConnection, client_type=DomainClient
     )
     return client
