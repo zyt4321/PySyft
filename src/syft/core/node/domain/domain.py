@@ -110,10 +110,8 @@ class Domain(Node):
         # this needs to be defensive by checking domain_id NOT domain.id or it breaks
         try:
             return msg.address.domain_id == self.id and msg.address.device is None
-        except Exception as excp3:
-            error = (
-                f"Error checking if {msg.pprint} is for me on {self.pprint}. {excp3}"
-            )
+        except Exception as e:
+            error = f"Error checking if {msg.pprint} is for me on {self.pprint}. {e}"
             print(error)
             return False
 
@@ -174,8 +172,8 @@ class Domain(Node):
                 obj = getattr(response, "obj", None)
                 if obj is not None:
                     return obj
-        except Exception as excp1:
-            logger.critical(f"Exception getting object for {request}. {excp1}")
+        except Exception as e:
+            logger.critical(f"Exception getting object for {request}. {e}")
         return None
 
     def _count_elements(self, obj: object) -> Tuple[bool, int]:
@@ -226,8 +224,11 @@ class Domain(Node):
         print_local = handler.get("print_local", None)
         log_local = handler.get("log_local", None)
         element_quota = handler.get("element_quota", None)
+        request_name = None
+        if isinstance(request.name, str):
+            request_name = request.name.strip().lower()
 
-        if name is not None and name != request.name.strip().lower():
+        if name is not None and name != request_name:
             # valid name doesnt match so ignore this handler
             logger.debug(
                 f"HANDLER Ignoring request handler {handler} against {request}"
@@ -237,7 +238,7 @@ class Domain(Node):
         # if we have any of these three rules we will need to get the object to
         # print it, log it, or check its quota
         obj = None
-        if print_local or log_local or element_quota:
+        if print_local or log_local or element_quota is not None:
             obj = self._get_object(request=request)
             logger.debug(f"> HANDLER Got object {obj} for checking")
 
@@ -308,7 +309,7 @@ class Domain(Node):
                 reqs_to_remove.append(req)
 
         for req in reqs_to_remove:
-            self.handled_requests.__delitem__(req)
+            self.handled_requests.pop(req, None)
 
         alive_requests: List[RequestMessage] = []
         for request in self.requests:
@@ -331,7 +332,6 @@ class Domain(Node):
         while True:
             await asyncio.sleep(0.01)
             try:
-                # logger.debug("running HANDLER")
                 self.clean_up_handlers()
                 self.clean_up_requests()
                 if len(self.request_handlers) > 0:
@@ -345,6 +345,5 @@ class Domain(Node):
                                 if handled:
                                     # we handled the request so we can exit the loop
                                     break
-            except Exception as excp2:
-                # logger.critical(f"HANDLER loop exception. {lol}")
-                print("HANDLER Exception in the while loop!!", excp2)
+            except Exception as e:
+                logger.critical(f"HANDLER loop exception. {e}")

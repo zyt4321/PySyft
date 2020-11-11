@@ -42,6 +42,7 @@ To begin your education in Syft, continue to the :py:mod:`syft.core.node.vm.vm` 
 import os
 from pathlib import Path
 import sys
+from typing import Any
 from typing import Union
 
 # third party
@@ -106,24 +107,28 @@ DEFAULT_LOG_FILE = "syft_{time}.log"
 
 # run this to enable logging, or run with disable=True to turn it back off
 def logging(
-    disable: bool = False, file_path: Union[None, str, os.PathLike] = None
+    sink: Union[None, str, os.PathLike] = None,
+    disable: bool = False,
+    level: str = "INFO",
 ) -> None:
 
     logger.debug("Logging loaded")
 
-    if disable:
-        if file_path is not None:
-            LOG_FILE = file_path
+    output: Any
+
+    if not disable:
+        if sink is None:
+            output = DEFAULT_LOG_FILE
         else:
-            LOG_FILE = DEFAULT_LOG_FILE
+            output = sink
 
         _ = logger.add(
-            LOG_FILE,
+            output,
             enqueue=True,
             colorize=False,
             diagnose=True,
             backtrace=True,
-            level="TRACE",
+            level=level,
         )
     else:
         logger.remove()
