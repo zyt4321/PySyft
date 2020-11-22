@@ -5,6 +5,10 @@ using lz4. If different compressions are required, the worker can override
 the function apply_compress_scheme.
 """
 
+# import numpy as np
+# import pyarrow
+# import syft
+
 from typing import Callable
 
 from syft.serde.msgpack import serialize as msgpack_serialize
@@ -40,6 +44,30 @@ def serialize(
     Returns:
         binary: the serialized form of the object.
     """
+    # print(f"serding stuff: {type(obj)}")
+    # print(obj)
+    # if isinstance(obj, syft.messaging.message.WorkerCommandMessage):
+    #     if obj.command_name == "feed_crypto_primitive_store":
+    #         # print(obj.message[0][0])
+    #         if "fss_comp" in obj.message[0][0]:
+    #             print(
+    #                 f"Strat: {strategy}, simplified? \
+    # {simplified} forcefull {force_full_simplification}"
+    #             )
+    # return pyarrow.serialize(obj.message[0][0]).to_buffer()
+    # s = pyarrow.serialize(obj.message[0][0]).to_buffer()
+    # print(s)
+    # print(type(s))
+    # print(pyarrow.deserialize(s))
+    #     print("JACK")
+    #     print(obj.message[0][0]["fss_comp"])
+    # print(obj.message)
+    # print(len(obj.message))
+    # print()
+    # print(obj[0])
+    # print("ser array")
+    # print(obj.shape)
+
     if strategy is None:
 
         strategy = msgpack_serialize
@@ -70,6 +98,11 @@ def deserialize(
     Returns:
         object: the deserialized form of the binary input.
     """
+
+    # print(len(bin))
+    # print(type(bin))
+    # if isinstance(bin, pyarrow.lib.Buffer):
+    #     print("buff")
 
     if strategy is None:
 

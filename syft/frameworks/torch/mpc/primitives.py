@@ -142,6 +142,11 @@ class PrimitiveStorage:
 
         primitives = builder(n_party=len(workers), n_instances=n_instances, **kwargs)
 
+        # if op in ["fss_eq", "fss_comp"]:
+        #     print(type(primitives))
+        #     print(primitives)
+        #     print(primitives[0].shape)
+
         for worker_primitives, worker in zip(primitives, workers):
             worker_types_primitives[worker][op] = worker_primitives
 

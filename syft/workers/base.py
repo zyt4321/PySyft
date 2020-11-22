@@ -37,6 +37,11 @@ from syft.workers.message_handler import BaseMessageHandler
 from syft.exceptions import ResponseSignatureError
 from syft.exceptions import WorkerNotFoundException
 
+import pyarrow
+
+# Any message above this size in bytes is a fat FSS key
+# Small FSS keys will be handled like a generic message
+SHOOT_ARRAY_THRESHOLD = 50_000_000
 
 # this if statement avoids circular imports between base.py and pointer.py
 if TYPE_CHECKING:
@@ -287,6 +292,18 @@ class BaseWorker(AbstractWorker):
         else:
             return []
 
+    @staticmethod
+    def arrow_serialize(
+        obj: WorkerCommandMessage, worker, simplified, force_full_simplification
+    ) -> bin:
+        return pyarrow.serialize(obj.message[0][0]).to_buffer()
+
+    @staticmethod
+    def arrow_deserialize(binary: bin, worker) -> WorkerCommandMessage:
+        return BaseWorker.create_worker_command_message(
+            "feed_crypto_primitive_store", None, pyarrow.deserialize(binary)
+        )
+
     def send_msg(self, message: Message, location: "BaseWorker") -> object:
         """Implements the logic to send messages.
 
@@ -309,14 +326,28 @@ class BaseWorker(AbstractWorker):
         if self.verbose:
             print(f"worker {self} sending {message} to {location}")
 
+        strat = None
+        if isinstance(message, WorkerCommandMessage):
+            if message.command_name == "feed_crypto_primitive_store":
+                # print(obj.message[0][0])
+                if "fss_comp" in message.message[0][0]:
+                    if message.message[0][0]["fss_comp"].nbytes > SHOOT_ARRAY_THRESHOLD + 1_000:
+                        strat = self.arrow_serialize
+                if "fss_eq" in message.message[0][0]:
+                    if message.message[0][0]["fss_eq"].nbytes > SHOOT_ARRAY_THRESHOLD + 1_000:
+                        strat = self.arrow_serialize
+
         # Step 1: serialize the message to a binary
-        bin_message = sy.serde.serialize(message, worker=self)
+        bin_message = sy.serde.serialize(message, worker=self, strategy=strat)
+        # bin_message = message
+        # print(len(bin_message))
 
         # Step 2: send the message and wait for a response
         bin_response = self._send_msg(bin_message, location)
 
         # Step 3: deserialize the response
         response = sy.serde.deserialize(bin_response, worker=self)
+        # response = bin_response
 
         return response
 
@@ -334,8 +365,15 @@ class BaseWorker(AbstractWorker):
         Returns:
             A binary message response.
         """
+
+        # print(len(bin_message))
+        strat = None
+        if len(bin_message) > 50_000_000:
+            # print(f"fss? {len(bin_message)}")
+            strat = self.arrow_deserialize
         # Step 0: deserialize message
-        msg = sy.serde.deserialize(bin_message, worker=self)
+        msg = sy.serde.deserialize(bin_message, worker=self, strategy=strat)
+        # msg = bin_message
 
         # Step 1: save message and/or log it out
         if self.log_msgs:
@@ -359,7 +397,9 @@ class BaseWorker(AbstractWorker):
 
         # Step 3: Serialize the message to simple python objects
         bin_response = sy.serde.serialize(response, worker=self)
-
+        # bin_response = response
+        # bin_response = 1
+        # print(len(bin_response))
         return bin_response
 
         # SECTION:recv_msg() uses self._message_router to route to these methods
