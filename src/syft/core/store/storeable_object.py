@@ -149,6 +149,15 @@ class StorableObject(AbstractStorableObject):
             proto.data.Unpack(tensor_data)
             return PyTorchParameterWrapper._data_proto2object(proto=tensor_data)
 
+        if fqn.startswith("torch.return_types."):
+            # syft relative
+            from ...lib.python.namedtuple import ValuesIndicesWrapper
+            from ...proto.lib.torch.valuesindices_pb2 import ValuesIndicesProto
+
+            tuple_data = ValuesIndicesProto()
+            proto.data.Unpack(tuple_data)
+            return ValuesIndicesWrapper._data_proto2object(proto=tuple_data)
+
         parts = fqn.split(".")
         klass_name = parts.pop()
         obj_type = getattr(sys.modules[".".join(parts)], klass_name)
