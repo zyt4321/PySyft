@@ -154,8 +154,13 @@ class DataCentricFLClient(WebsocketClientWorker):
         Returns:
             node_response (bytes) : response payload.
         """
-        self.ws_arrow.send_binary(message)
+
+        # Converts pyarrow.lib.Buffer to Python bytes -- it sucks (memory copy)
+        print("Forwarding arrow")
+        self.ws_arrow.send_binary(message.to_pybytes())
+        print("Waiting for the response")
         response = self.ws_arrow.recv()
+        print("Got the response")
         return response
 
     def _forward_to_websocket_server_worker(self, message: bin) -> bin:
