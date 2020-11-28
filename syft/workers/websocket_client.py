@@ -71,7 +71,11 @@ class WebsocketClientWorker(BaseWorker):
 
     @property
     def url_arrow(self):
-        return f"wss://{self.host}:{self.port}/arrow" if self.secure else f"ws://{self.host}:{self.port}/arrow"
+        return (
+            f"wss://{self.host}:{self.port}/arrow"
+            if self.secure
+            else f"ws://{self.host}:{self.port}/arrow"
+        )
 
     def connect_arrow(self):
         args_ = {"max_size": None, "timeout": self.timeout, "url": self.url_arrow}
@@ -90,10 +94,9 @@ class WebsocketClientWorker(BaseWorker):
             time.sleep(1)
             self.ws_arrow.send("Hello %d" % i)
         print("Receiving...")
-        result =  self.ws_arrow.recv()
+        result = self.ws_arrow.recv()
         print("Received '%s'" % result)
         sleep(3)
-
 
         self._log_msgs_remote(self.log_msgs)
 
@@ -164,7 +167,9 @@ class WebsocketClientWorker(BaseWorker):
             self.ws_arrow.shutdown()
             time.sleep(0.1)
             # Avoid timing out on the server-side
-            self.ws_arrow = websocket.create_connection(self.url_arrow, max_size=None, timeout=self.timeout)
+            self.ws_arrow = websocket.create_connection(
+                self.url_arrow, max_size=None, timeout=self.timeout
+            )
             logger.warning("Created new websocket connection")
             time.sleep(0.1)
             response = self._forward_to_websocket_server_worker_arrow(message)
