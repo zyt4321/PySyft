@@ -25,6 +25,10 @@ from syft.workers.base import BaseWorker
 from time import sleep
 
 logger = logging.getLogger(__name__)
+logge = logging.getLogger("websockets")
+logge.setLevel(logging.INFO)
+logge.addHandler(logging.StreamHandler())
+
 
 TIMEOUT_INTERVAL = 60
 
@@ -72,9 +76,9 @@ class WebsocketClientWorker(BaseWorker):
     @property
     def url_arrow(self):
         return (
-            f"wss://{self.host}:{self.port}/arrow"
+            f"wss://{self.host}:{self.port}/arrow/"
             if self.secure
-            else f"ws://{self.host}:{self.port}/arrow"
+            else f"ws://{self.host}:{self.port}/arrow/"
         )
 
     def connect_arrow(self):
@@ -84,19 +88,19 @@ class WebsocketClientWorker(BaseWorker):
             args_["sslopt"] = {"cert_reqs": ssl.CERT_NONE}
 
         self.ws_arrow = websocket.create_connection(**args_)
-        print("Connecting to arrow socket")
-        print(self.ws_arrow)
-        print(self.url_arrow)
+        # print("Connecting to arrow socket")
+        # print(self.ws_arrow)
+        # print(self.url_arrow)
 
-        sleep(1)
-        print("Playing a bit")
-        for i in range(3):
-            time.sleep(1)
-            self.ws_arrow.send("Hello %d" % i)
-        print("Receiving...")
-        result = self.ws_arrow.recv()
-        print("Received '%s'" % result)
-        sleep(3)
+        # sleep(3)
+        # print("Playing a bit")
+        # for i in range(3):
+        #     time.sleep(1)
+        #     self.ws_arrow.send("Hello %d" % i)
+        # print("Receiving...")
+        # result = self.ws_arrow.recv()
+        # print("Received '%s'" % result)
+        # sleep(3)
 
         self._log_msgs_remote(self.log_msgs)
 
