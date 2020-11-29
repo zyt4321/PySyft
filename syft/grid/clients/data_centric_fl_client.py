@@ -157,7 +157,9 @@ class DataCentricFLClient(WebsocketClientWorker):
 
         # Converts pyarrow.lib.Buffer to Python bytes -- it sucks (memory copy).
         # NOTE: later, use a proper gRPC and Arrow Flight.
-        self.ws_arrow.send_binary(message.to_pybytes())
+
+        self.ws_arrow.send_binary(message)
+        # self.ws_arrow.send_binary(message.to_pybytes())
         response = self.ws_arrow.recv()
         return response
 
