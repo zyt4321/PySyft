@@ -23,6 +23,7 @@ from syft.generic.pointers.pointer_tensor import PointerTensor
 from syft.workers.base import BaseWorker
 
 from time import sleep
+import pyarrow.flight
 
 logger = logging.getLogger(__name__)
 logge = logging.getLogger("websockets")
@@ -72,6 +73,7 @@ class WebsocketClientWorker(BaseWorker):
         self.ws_arrow = None
         self.connect()
         self.connect_arrow()
+        self.flight_client = self.connect_flight()
 
     @property
     def url_arrow(self):
@@ -80,6 +82,11 @@ class WebsocketClientWorker(BaseWorker):
             if self.secure
             else f"ws://{self.host}:{self.port}/arrow/"
         )
+
+    def connect_flight(self):
+        # TODO: add TLS support
+        # TODO: see if we need a different port
+        return pyarrow.flight.FlightClient(f"grpc+tcp://{self.host}:{self.port}")
 
     def connect_arrow(self):
         args_ = {"max_size": None, "timeout": self.timeout, "url": self.url_arrow}
@@ -136,6 +143,10 @@ class WebsocketClientWorker(BaseWorker):
 
     def _send_msg_arrow(self, message: bin, location=None) -> bin:
         return self._recv_msg_arrow(message)
+
+    def _shoot_numpy_array(self, array):
+        self._shoot_array_to_arrow_flight(array)
+        return
 
     def _forward_to_websocket_server_worker(self, message: bin) -> bin:
         """

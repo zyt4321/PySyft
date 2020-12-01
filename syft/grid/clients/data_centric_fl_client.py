@@ -163,6 +163,16 @@ class DataCentricFLClient(WebsocketClientWorker):
         response = self.ws_arrow.recv()
         return response
 
+    def _shoot_array_to_arrow_flight(array):
+        # TODO: investigate Streams and record batches too
+        # TODO: reuse the same flight
+        table = pyarrow.Table.from_pandas(pd.DataFrame(array))
+        writer, _ = client.do_put(
+            pyarrow.flight.FlightDescriptor.for_command("feed_crypto_store_fss"), table.schema
+        )
+        writer.write_table(t)
+        writer.close()
+
     def _forward_to_websocket_server_worker(self, message: bin) -> bin:
         """Send a bin message to a remote node and receive the response.
 

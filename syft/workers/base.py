@@ -343,6 +343,12 @@ class BaseWorker(AbstractWorker):
 
         return response
 
+    def shoot_numpy_array(self, array, location: "BaseWorker"):
+
+        self._shoot_numpy_array(array, location)
+        # We don't care about the response
+        return
+
     def send_msg_arrow(self, message: Message, location: "BaseWorker") -> object:
         """Implements the logic to send messages.
 
@@ -1031,6 +1037,14 @@ class BaseWorker(AbstractWorker):
 
     def feed_crypto_primitive_store(self, types_primitives: dict):
         self.crypto_store.add_primitives(types_primitives)
+
+    def swallow_numpy_array(self, fss_array):
+        # TODO: use "command" field of the Flight
+        if fss_array.shape[1] > 700:
+            op = "fss_eq"
+        else:
+            op = "fss_comp"
+        self.crypto_store.add_primitives({op, fss_array})
 
     def list_tensors(self):
         return str(self.object_store._tensors)
