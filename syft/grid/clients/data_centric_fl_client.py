@@ -151,6 +151,7 @@ class DataCentricFLClient(WebsocketClientWorker):
         """
         # self.ws.send(json.dumps(message))
         # return json.loads(self.ws.recv())
+        # logging.info(f"id {id} at port {self.port} is sending json")
 
         bin_message = json.dumps(message).encode("utf-8")
         # bin_response = self._forward_to_flight_server_worker(bin_message)
@@ -164,12 +165,12 @@ class DataCentricFLClient(WebsocketClientWorker):
 
         # We return python bytes and not a pyarrow Buffer
         r = reader.read()
-        logging.info(f"Reading response of type {type(r)}: {r}")
+        # logging.info(f"Reading response of type {type(r)}: {r}")
 
         response = None
         if r is not None:
             response = json.loads(r.to_pybytes().decode("utf-8"))
-            logging.info(f"Deser response: {response}")
+            # logging.info(f"Deser response: {response}")
         else:
             logging.info("No response")
             # response = None

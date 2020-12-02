@@ -106,7 +106,8 @@ class WebsocketClientWorker(BaseWorker):
         self._log_msgs_remote(self.log_msgs)
 
     def close(self):
-        self.ws.shutdown()
+        # self.ws.shutdown()
+        logging.info(f"Let's say I've closed this flight in a clean way")
 
     def search(self, query):
         # Prepare a message requesting the websocket server to search among its objects

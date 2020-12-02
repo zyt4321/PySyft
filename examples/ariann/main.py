@@ -36,9 +36,11 @@ def run(args):
 
     if args.websockets:
 
-        alice = DataCentricFLClient(hook, "grpc+tcp://localhost:7600")
-        bob = DataCentricFLClient(hook, "grpc+tcp://localhost:7601")
-        crypto_provider = DataCentricFLClient(hook, "grpc+tcp://localhost:7602")
+        alice = DataCentricFLClient(hook, "grpc+tcp://localhost:7600", id="alice")
+        bob = DataCentricFLClient(hook, "grpc+tcp://localhost:7601", id="bob")
+        crypto_provider = DataCentricFLClient(
+            hook, "grpc+tcp://localhost:7602", id="crypto_provider"
+        )
 
         # alice = DataCentricFLClient(hook, "ws://localhost:7600")
         # bob = DataCentricFLClient(hook, "ws://localhost:7601")

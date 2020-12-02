@@ -1,5 +1,7 @@
 import torch
 
+import logging
+
 from typing import Union
 from typing import List
 from typing import Any
@@ -52,6 +54,7 @@ class AbstractGrid(ABC):
                     node_i, node_j = nodes[i], nodes[j]
                     node_i.connect_nodes(node_j)
                     node_j.connect_nodes(node_i)
+                    logging.info(f"Connecting {i} and {j}")
 
     def _check_node_type(self, grid_workers: List[Any], node_type: Any) -> bool:
         """Private method used to verify if workers used by grid network are exactly what we expect.

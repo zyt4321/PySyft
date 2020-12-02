@@ -1,6 +1,8 @@
 import random
 import torch
 
+import logging
+
 from typing import Any
 from typing import Tuple
 from typing import Dict
@@ -17,8 +19,10 @@ from syft.frameworks.torch.tensors.interpreters.additive_shared import AdditiveS
 
 class PrivateGridNetwork(AbstractGrid):
     def __init__(self, *workers):
+        logging.info("Init")
         super().__init__()
         self.workers = list(workers)
+        logging.info(f"Workers: {self.workers}")
         self._connect_all_nodes(self.workers, DataCentricFLClient)
 
     def search(self, *query) -> Dict[Any, Any]:

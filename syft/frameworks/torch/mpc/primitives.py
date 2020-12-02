@@ -7,6 +7,8 @@ from syft.exceptions import EmptyCryptoPrimitiveStoreError
 from syft.frameworks.torch.mpc.beaver import build_triple
 from syft.workers.abstract import AbstractWorker
 
+import logging
+
 
 class PrimitiveStorage:
     """
@@ -158,6 +160,9 @@ class PrimitiveStorage:
             n_instances (int): how many of them are needed
             **kwargs: any parameters needed for the primitive builder
         """
+
+        logging.info(f"Provide primitiveis. Workers: {workers}")
+
         if not isinstance(op, str):
             raise TypeError("op should be a string")
 
@@ -176,7 +181,8 @@ class PrimitiveStorage:
             worker_message = self._owner.create_worker_command_message(
                 "feed_crypto_primitive_store", None, worker_types_primitives[worker]
             )
-            self._owner.send_msg_arrow(worker_message, worker)
+            # self._owner.send_msg_arrow(worker_message, worker)
+            self._owner.send_msg(worker_message, worker)
 
     def add_primitives(self, types_primitives: dict):
         """
@@ -259,7 +265,7 @@ class PrimitiveStorage:
             assert n_instances == 1, "For Beaver, only n_instances == 1 is allowed."
             if n_party != 2:
                 raise NotImplementedError(
-                    "Only 2 workers supported for the moment. "
+                    f"nparty: {n_party}. Only 2 workers supported for the moment. "
                     "Please fill an issue if you have an urgent need."
                 )
             shapes = kwargs["shapes"]  # should be a list of pairs of shapes
