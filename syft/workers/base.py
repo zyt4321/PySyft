@@ -371,10 +371,11 @@ class BaseWorker(AbstractWorker):
         if self.verbose:
             print(f"worker {self} sending {message} to {location}")
 
-        strat = self.arrow_serialize
+        # strat = self.arrow_serialize
 
         # Step 1: serialize the message to a binary
-        bin_message = sy.serde.serialize(message, worker=self, strategy=strat)
+        # bin_message = sy.serde.serialize(message, worker=self, strategy=strat)
+        bin_message = pyarrow.serialize(message)
 
         # Step 2: send the message and wait for a response
         bin_response = self._send_msg_arrow(bin_message, location)
@@ -444,10 +445,16 @@ class BaseWorker(AbstractWorker):
             A binary message response.
         """
 
+        logger.info(f"Base worker receiving an arrow: {bin_message}")
+
+        logger.info(f"Homemade deserialized: {pyarrow.deserialize(bin_message)}")
+
         strat = self.arrow_deserialize
 
         # Step 0: deserialize message
         msg = sy.serde.deserialize(bin_message, worker=self, strategy=strat)
+
+        logger.info(f"Deserialized: {msg}")
 
         # Step 1: save message and/or log it out
         if self.log_msgs:
@@ -463,9 +470,12 @@ class BaseWorker(AbstractWorker):
         # Step 2: route message to appropriate function
 
         response = None
+        logger.info(f"Browsnig handlers: {self.message_handlers}")
         for handler in self.message_handlers:
             if handler.supports(msg):
+                logger.info(f"Handling with {handler}")
                 response = handler.handle(msg)
+                logger.info("Got a response")
                 break
         # TODO(karlhigley): Raise an exception if no handler is found
 

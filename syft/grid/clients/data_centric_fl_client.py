@@ -1,6 +1,9 @@
 import json
 import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
+import logging
+
+logging.getLogger().setLevel(logging.INFO)
 
 from typing import Union
 from urllib.parse import urlparse
@@ -148,9 +151,31 @@ class DataCentricFLClient(WebsocketClientWorker):
         """
         # self.ws.send(json.dumps(message))
         # return json.loads(self.ws.recv())
+
         bin_message = json.dumps(message).encode("utf-8")
-        bin_response = self._forward_to_flight_server_worker(bin_message)
-        return json.loads(bin_response.decode("utf-8"))
+        # bin_response = self._forward_to_flight_server_worker(bin_message)
+        # return json.loads(bin_response.decode("utf-8"))
+        record_batch = pa.RecordBatch.from_arrays([pa.array([bin_message])], names=[""])
+        writer, reader = self.client.do_put(
+            pyarrow.flight.FlightDescriptor.for_command("json"), record_batch.schema
+        )
+        writer.write_batch(record_batch)
+        # The server checks the command and deserializes on the fly
+
+        # We return python bytes and not a pyarrow Buffer
+        r = reader.read()
+        logging.info(f"Reading response of type {type(r)}: {r}")
+
+        response = None
+        if r is not None:
+            response = json.loads(r.to_pybytes().decode("utf-8"))
+            logging.info(f"Deser response: {response}")
+        else:
+            logging.info("No response")
+            # response = None
+        writer.close()
+
+        return response
 
     def _forward_to_flight_server_worker(self, message: bin) -> bin:
         """Send a bin message to a remote node and receive the response.
