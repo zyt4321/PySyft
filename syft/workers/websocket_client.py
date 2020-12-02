@@ -68,9 +68,9 @@ class WebsocketClientWorker(BaseWorker):
         # self.ws_arrow = None
         # self.connect()
         # self.connect_arrow()
-        logger.info("Connecting to the Flight server.")
+        # logger.info("Connecting to the Flight server.")
         self.client = pyarrow.flight.FlightClient(f"grpc+tcp://{self.host}:{self.port}")
-        logger.info(self.client)
+        # logger.info(self.client)
 
     @property
     def url_arrow(self):
@@ -97,17 +97,22 @@ class WebsocketClientWorker(BaseWorker):
         return f"wss://{self.host}:{self.port}" if self.secure else f"ws://{self.host}:{self.port}"
 
     def connect(self):
-        args_ = {"max_size": None, "timeout": self.timeout, "url": self.url}
+        # logging.info("Fake connection.")
+        pass
 
-        if self.secure:
-            args_["sslopt"] = {"cert_reqs": ssl.CERT_NONE}
+    # def connect(self):
+    #     args_ = {"max_size": None, "timeout": self.timeout, "url": self.url}
 
-        self.ws = websocket.create_connection(**args_)
-        self._log_msgs_remote(self.log_msgs)
+    #     if self.secure:
+    #         args_["sslopt"] = {"cert_reqs": ssl.CERT_NONE}
+
+    #     self.ws = websocket.create_connection(**args_)
+    #     self._log_msgs_remote(self.log_msgs)
 
     def close(self):
         # self.ws.shutdown()
-        logging.info(f"Let's say I've closed this flight in a clean way")
+        # logging.info(f"Let's say I've closed this flight in a clean way")
+        pass
 
     def search(self, query):
         # Prepare a message requesting the websocket server to search among its objects
@@ -221,20 +226,25 @@ class WebsocketClientWorker(BaseWorker):
         if self.verbose:
             print("async_send_msg", message)
 
-        async with websockets.connect(
-            self.url, timeout=self.timeout, max_size=None, ping_timeout=self.timeout
-        ) as websocket:
-            # Step 1: serialize the message to a binary
-            bin_message = sy.serde.serialize(message, worker=self)
+        # async with websockets.connect(
+        #     self.url, timeout=self.timeout, max_size=None, ping_timeout=self.timeout
+        # ) as websocket:
 
-            # Step 2: send the message
-            await websocket.send(bin_message)
+        # Just a normal send msg
 
-            # Step 3: wait for a response
-            bin_response = await websocket.recv()
+        # Step 1: serialize the message to a binary
+        bin_message = sy.serde.serialize(message, worker=self)
 
-            # Step 4: deserialize the response
-            response = sy.serde.deserialize(bin_response, worker=self)
+        # # Step 2: send the message
+        # await websocket.send(bin_message)
+
+        # # Step 3: wait for a response
+        # bin_response = await websocket.recv()
+
+        bin_response = self._send_msg(bin_message)
+
+        # Step 4: deserialize the response
+        response = sy.serde.deserialize(bin_response, worker=self)
 
         return response
 

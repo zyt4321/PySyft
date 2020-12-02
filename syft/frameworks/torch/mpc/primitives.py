@@ -161,8 +161,6 @@ class PrimitiveStorage:
             **kwargs: any parameters needed for the primitive builder
         """
 
-        logging.info(f"Provide primitiveis. Workers: {workers}")
-
         if not isinstance(op, str):
             raise TypeError("op should be a string")
 
