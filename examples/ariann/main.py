@@ -35,9 +35,15 @@ def run(args):
     hook = sy.TorchHook(torch)
 
     if args.websockets:
-        alice = DataCentricFLClient(hook, "ws://localhost:7600")
-        bob = DataCentricFLClient(hook, "ws://localhost:7601")
-        crypto_provider = DataCentricFLClient(hook, "ws://localhost:7602")
+
+        alice = DataCentricFLClient(hook, "grpc+tcp://localhost:7600")
+        bob = DataCentricFLClient(hook, "grpc+tcp://localhost:7601")
+        crypto_provider = DataCentricFLClient(hook, "grpc+tcp://localhost:7602")
+
+        # alice = DataCentricFLClient(hook, "ws://localhost:7600")
+        # bob = DataCentricFLClient(hook, "ws://localhost:7601")
+        # crypto_provider = DataCentricFLClient(hook, "ws://localhost:7602")
+
         my_grid = sy.PrivateGridNetwork(alice, bob, crypto_provider)
         sy.local_worker.object_store.garbage_delay = 1
 

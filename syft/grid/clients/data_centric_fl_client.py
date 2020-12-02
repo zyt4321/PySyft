@@ -5,6 +5,9 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 from typing import Union
 from urllib.parse import urlparse
 
+import pyarrow.flight
+import pyarrow as pa
+
 # Syft imports
 import syft as sy
 from syft.serde import serialize
@@ -143,8 +146,35 @@ class DataCentricFLClient(WebsocketClientWorker):
         Returns:
             node_response (dict) : response payload.
         """
-        self.ws.send(json.dumps(message))
-        return json.loads(self.ws.recv())
+        # self.ws.send(json.dumps(message))
+        # return json.loads(self.ws.recv())
+        bin_message = json.dumps(message).encode("utf-8")
+        bin_response = self._forward_to_flight_server_worker(bin_message)
+        return json.loads(bin_response.decode("utf-8"))
+
+    def _forward_to_flight_server_worker(self, message: bin) -> bin:
+        """Send a bin message to a remote node and receive the response.
+
+        Args:
+            message (bytes) : message payload.
+        Returns:
+            node_response (bytes) : response payload.
+        """
+        # The input has to be bytes, not a buffer, to be converted into an array.
+        # TODO: check more efficient methods?
+        record_batch = pa.RecordBatch.from_arrays([pa.array([message])], names=[""])
+        writer, reader = self.client.do_put(
+            pyarrow.flight.FlightDescriptor.for_command(""), record_batch.schema
+        )
+        writer.write_batch(record_batch)
+        # We return python bytes and not a pyarrow Buffer
+        r = reader.read()
+        if r is not None:
+            response = r.to_pybytes()
+        else:
+            reponse = None
+        writer.close()
+        return response
 
     def _forward_to_websocket_server_worker_arrow(self, message: bin) -> bin:
         """Send a bin message to a remote node and receive the response.
