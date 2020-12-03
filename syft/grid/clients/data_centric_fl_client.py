@@ -202,7 +202,7 @@ class DataCentricFLClient(WebsocketClientWorker):
         writer.close()
         logging.info("No need to wait for a response.")
 
-    def _forward_to_flight_server_worker(self, message: bin) -> bin:
+    def _forward_to_flight_server_worker(self, message: bin, command="") -> bin:
         """Send a bin message to a remote node and receive the response.
 
         Args:
@@ -217,7 +217,7 @@ class DataCentricFLClient(WebsocketClientWorker):
         # TODO: check more efficient methods?
         record_batch = pa.RecordBatch.from_arrays([pa.array([message])], names=[""])
         writer, reader = self.client.do_put(
-            pyarrow.flight.FlightDescriptor.for_command(""), record_batch.schema
+            pyarrow.flight.FlightDescriptor.for_command(command), record_batch.schema
         )
         writer.write_batch(record_batch)
         # We return python bytes and not a pyarrow Buffer

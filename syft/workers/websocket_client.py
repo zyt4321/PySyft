@@ -165,7 +165,7 @@ class WebsocketClientWorker(BaseWorker):
 
         # TODO: use a proper table for Numpy
 
-        response = self._forward_to_flight_server_worker(message.to_pybytes())
+        response = self._forward_to_flight_server_worker(message.to_pybytes(), command="arrow")
         # if not self.ws_arrow.connected:
         #     logger.warning("Websocket connection closed (worker: %s)", self.id)
         #     self.ws_arrow.shutdown()

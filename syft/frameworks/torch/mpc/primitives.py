@@ -176,25 +176,22 @@ class PrimitiveStorage:
             worker_types_primitives[worker][op] = worker_primitives
 
         for i, worker in enumerate(workers):
-
-            # TODO: enable arrow route in the server at least
-            # self._owner.send_msg_arrow(worker_message, worker)
-            if op in ["fss_eq", "fss_comp"]:
-                worker_message = self._owner.create_worker_command_message(
-                    "feed_crypto_primitive_store", None, worker_types_primitives[worker]
-                )
-                logging.info(
-                    f"I should send this: {worker_message}.\n I'm {self}, belonging to {self._owner} and sending stuff to {worker}"
-                )
-                self._owner.shoot_array(
-                    worker_types_primitives[worker][op], fss_op=op, location=worker
-                )
-                # self._owner.send_msg(worker_message, worker)
-            else:
-                worker_message = self._owner.create_worker_command_message(
-                    "feed_crypto_primitive_store", None, worker_types_primitives[worker]
-                )
-                self._owner.send_msg(worker_message, worker)
+            # if op in ["fss_eq", "fss_comp"]:
+            #     worker_message = self._owner.create_worker_command_message(
+            #         "feed_crypto_primitive_store", None, worker_types_primitives[worker]
+            #     )
+            #     logging.info(
+            #         f"I should send this: {worker_message}.\n I'm {self}, belonging to {self._owner} and sending stuff to {worker}"
+            #     )
+            #     self._owner.shoot_array(
+            #         worker_types_primitives[worker][op], fss_op=op, location=worker
+            #     )
+            #     # self._owner.send_msg(worker_message, worker)
+            # else:
+            worker_message = self._owner.create_worker_command_message(
+                "feed_crypto_primitive_store", None, worker_types_primitives[worker]
+            )
+            self._owner.send_msg_arrow(worker_message, worker)
 
     def add_primitives(self, types_primitives: dict):
         """
