@@ -3,7 +3,7 @@ import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 import logging
 
-logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.WARNING)
 
 from typing import Union
 from urllib.parse import urlparse

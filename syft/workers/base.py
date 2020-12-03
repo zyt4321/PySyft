@@ -327,8 +327,7 @@ class BaseWorker(AbstractWorker):
             The deserialized form of message from the worker at specified
             location.
         """
-        # if self.verbose:
-        if True:
+        if self.verbose:
             print(f"worker {self} sending {message} to {location}")
 
         strategy = None

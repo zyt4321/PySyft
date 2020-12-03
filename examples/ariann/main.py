@@ -36,10 +36,10 @@ def run(args):
 
     if args.websockets:
 
-        alice = DataCentricFLClient(hook, "grpc+tcp://localhost:7600", id="alice", verbose=True)
-        bob = DataCentricFLClient(hook, "grpc+tcp://localhost:7601", id="bob", verbose=True)
+        alice = DataCentricFLClient(hook, "grpc+tcp://localhost:7600", id="alice")
+        bob = DataCentricFLClient(hook, "grpc+tcp://localhost:7601", id="bob")
         crypto_provider = DataCentricFLClient(
-            hook, "grpc+tcp://localhost:7602", id="crypto_provider", verbose=True
+            hook, "grpc+tcp://localhost:7602", id="crypto_provider"
         )
 
         # alice = DataCentricFLClient(hook, "ws://localhost:7600")
@@ -104,6 +104,7 @@ def run(args):
                 f"{ 'Online' if args.preprocess else 'Total' } time (s):\t",
                 round(test_time / args.batch_size, 4),
             )
+            print(f"Accuracy: {accuracy}")
         else:
             # Compare with clear text accuracy
             print("Clear text accuracy is:")
