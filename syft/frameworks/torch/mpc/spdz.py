@@ -1,8 +1,10 @@
 import asyncio
 import math
 
-# import multiprocessing
-from ray.util import multiprocessing
+from multiprocessing import Pool
+from ray.util.multiprocessing import Pool as RayPool
+from itertools import starmap
+
 import torch as th
 import logging
 
@@ -12,16 +14,12 @@ from syft.generic.utils import allow_command
 from syft.generic.utils import remote
 
 # from syft.frameworks.torch.mpc.fss import N_CORES
-import pyarrow as pa
-
-N_CORES = 1
-from itertools import starmap
-
-# pa.set_cpu_count(8)
-# pa.set_cpu_count(1)
+N_CORES = 4
+USE_RAY = True
 
 from .cuda.tensor import CUDALongTensor
 
+# ray.init(num_cpus=N_CORES, include_dashboard=False, ignore_reinit_error=True)
 NAMESPACE = "syft.frameworks.torch.mpc.spdz"
 no_wrap = {"no_wrap": True}
 
@@ -118,6 +116,10 @@ def spdz_compute(
                 a_epsilon._tensor,
                 delta_epsilon._tensor,
             )
+        elif N_CORES <= 1:
+            _, delta_b, a_epsilon, delta_epsilon = triple_mat_mul(
+                0, op, delta, epsilon, a, b, kwargs_
+            )
         else:
             batch_size = delta.shape[0]
 
@@ -134,19 +136,21 @@ def spdz_compute(
                     kwargs_,
                 )
                 multiprocessing_args.append(process_args)
-            # p = multiprocessing.Pool()
-            # logging.info("Starting pool")
-            # logging.info(
-            #     f"Args : {len(multiprocessing_args)} args looking like {multiprocessing_args[0][0:2]}"
-            # )
-            # # logging.info(f"CPU count: {multiprocessing.cpu_count()}")
+
+            if USE_RAY:
+                p = RayPool()
+            else:
+                p = Pool()
+            logging.info("Starting pool")
+            logging.info(
+                f"Args : {len(multiprocessing_args)} args looking like {multiprocessing_args[0][0:2]}"
+            )
+            # logging.info(f"CPU count: {multiprocessing.cpu_count()}")
             # logging.info(f"Arrow cpu: {pa.cpu_count()}")
 
-            # partitions = p.starmap(triple_mat_mul, multiprocessing_args)
-            # p.close()
-            # logging.info("Stopping pool.")
-
-            partitions = starmap(triple_mat_mul, multiprocessing_args)
+            partitions = p.starmap(triple_mat_mul, multiprocessing_args)
+            p.close()
+            logging.info("Stopping pool.")
 
             partitions = sorted(partitions, key=lambda k: k[0])
             delta_b = th.cat([partition[1] for partition in partitions])

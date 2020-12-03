@@ -10,8 +10,6 @@ import ssl
 import time
 import asyncio
 
-import pyarrow.flight
-
 import syft as sy
 
 from syft.exceptions import ResponseSignatureError
@@ -64,13 +62,10 @@ class WebsocketClientWorker(BaseWorker):
         # WebsocketClientWorker is garbage collected.
         # Secure flag adds a secure layer applying cryptography and authentication
         self.secure = secure
-        # self.ws = None
-        # self.ws_arrow = None
-        # self.connect()
-        # self.connect_arrow()
-        # logger.info("Connecting to the Flight server.")
-        self.client = pyarrow.flight.FlightClient(f"grpc+tcp://{self.host}:{self.port}")
-        # logger.info(self.client)
+        self.ws = None
+        self.ws_arrow = None
+        self.connect()
+        self.connect_arrow()
 
     @property
     def url_arrow(self):
@@ -97,22 +92,16 @@ class WebsocketClientWorker(BaseWorker):
         return f"wss://{self.host}:{self.port}" if self.secure else f"ws://{self.host}:{self.port}"
 
     def connect(self):
-        # logging.info("Fake connection.")
-        pass
+        args_ = {"max_size": None, "timeout": self.timeout, "url": self.url}
 
-    # def connect(self):
-    #     args_ = {"max_size": None, "timeout": self.timeout, "url": self.url}
+        if self.secure:
+            args_["sslopt"] = {"cert_reqs": ssl.CERT_NONE}
 
-    #     if self.secure:
-    #         args_["sslopt"] = {"cert_reqs": ssl.CERT_NONE}
-
-    #     self.ws = websocket.create_connection(**args_)
-    #     self._log_msgs_remote(self.log_msgs)
+        self.ws = websocket.create_connection(**args_)
+        self._log_msgs_remote(self.log_msgs)
 
     def close(self):
-        # self.ws.shutdown()
-        # logging.info(f"Let's say I've closed this flight in a clean way")
-        pass
+        self.ws.shutdown()
 
     def search(self, query):
         # Prepare a message requesting the websocket server to search among its objects
@@ -138,54 +127,46 @@ class WebsocketClientWorker(BaseWorker):
 
     def _recv_msg(self, message: bin) -> bin:
         """Forwards a message to the WebsocketServerWorker"""
-        response = self._forward_to_flight_server_worker(message)
-        # TODO: nice check for the client
-
-        # response = self._forward_to_websocket_server_worker(message)
-        # if not self.ws.connected:
-        #     logger.warning("Websocket connection closed (worker: %s)", self.id)
-        #     self.ws.shutdown()
-        #     time.sleep(0.1)
-        #     # Avoid timing out on the server-side
-        #     self.ws = websocket.create_connection(self.url, max_size=None, timeout=self.timeout)
-        #     logger.warning("Created new websocket connection")
-        #     time.sleep(0.1)
-        #     response = self._forward_to_websocket_server_worker(message)
-        #     if not self.ws.connected:
-        #         raise RuntimeError(
-        #             "Websocket connection closed and creation of new connection failed."
-        #         )
+        response = self._forward_to_websocket_server_worker(message)
+        if not self.ws.connected:
+            logger.warning("Websocket connection closed (worker: %s)", self.id)
+            self.ws.shutdown()
+            time.sleep(0.1)
+            # Avoid timing out on the server-side
+            self.ws = websocket.create_connection(self.url, max_size=None, timeout=self.timeout)
+            logger.warning("Created new websocket connection")
+            time.sleep(0.1)
+            response = self._forward_to_websocket_server_worker(message)
+            if not self.ws.connected:
+                raise RuntimeError(
+                    "Websocket connection closed and creation of new connection failed."
+                )
         return response
 
-    def _recv_msg_arrow(self, message) -> bin:
-        """Forwards a message to the WebsocketServerWorker
-        Takes an Arrow Buffer so we need to convert to bytes.
-
-        """
-
-        # TODO: use a proper table for Numpy
-
-        response = self._forward_to_flight_server_worker(message.to_pybytes(), command="arrow")
-        # if not self.ws_arrow.connected:
-        #     logger.warning("Websocket connection closed (worker: %s)", self.id)
-        #     self.ws_arrow.shutdown()
-        #     time.sleep(0.1)
-        #     # Avoid timing out on the server-side
-        #     self.ws_arrow = websocket.create_connection(
-        #         self.url_arrow, max_size=None, timeout=self.timeout
-        #     )
-        #     logger.warning("Created new websocket connection")
-        #     time.sleep(0.1)
-        #     response = self._forward_to_websocket_server_worker_arrow(message)
-        #     if not self.ws_arrow.connected:
-        #         raise RuntimeError(
-        #             "Websocket connection closed and creation of new connection failed."
-        #         )
+    def _recv_msg_arrow(self, message: bin) -> bin:
+        """Forwards a message to the WebsocketServerWorker"""
+        response = self._forward_to_websocket_server_worker_arrow(message)
+        if not self.ws_arrow.connected:
+            logger.warning("Websocket connection closed (worker: %s)", self.id)
+            self.ws_arrow.shutdown()
+            time.sleep(0.1)
+            # Avoid timing out on the server-side
+            self.ws_arrow = websocket.create_connection(
+                self.url_arrow, max_size=None, timeout=self.timeout
+            )
+            logger.warning("Created new websocket connection")
+            time.sleep(0.1)
+            response = self._forward_to_websocket_server_worker_arrow(message)
+            if not self.ws_arrow.connected:
+                raise RuntimeError(
+                    "Websocket connection closed and creation of new connection failed."
+                )
         return response
 
     def _send_msg_and_deserialize(self, command_name: str, *args, **kwargs):
         message = self.create_worker_command_message(command_name=command_name, *args, **kwargs)
 
+        logging.info(f"Message {message}")
         # Send the message and return the deserialized response.
         serialized_message = sy.serde.serialize(message)
         response = self._send_msg(serialized_message)
@@ -226,25 +207,20 @@ class WebsocketClientWorker(BaseWorker):
         if self.verbose:
             print("async_send_msg", message)
 
-        # async with websockets.connect(
-        #     self.url, timeout=self.timeout, max_size=None, ping_timeout=self.timeout
-        # ) as websocket:
+        async with websockets.connect(
+            self.url, timeout=self.timeout, max_size=None, ping_timeout=self.timeout
+        ) as websocket:
+            # Step 1: serialize the message to a binary
+            bin_message = sy.serde.serialize(message, worker=self)
 
-        # Just a normal send msg
+            # Step 2: send the message
+            await websocket.send(bin_message)
 
-        # Step 1: serialize the message to a binary
-        bin_message = sy.serde.serialize(message, worker=self)
+            # Step 3: wait for a response
+            bin_response = await websocket.recv()
 
-        # # Step 2: send the message
-        # await websocket.send(bin_message)
-
-        # # Step 3: wait for a response
-        # bin_response = await websocket.recv()
-
-        bin_response = self._send_msg(bin_message)
-
-        # Step 4: deserialize the response
-        response = sy.serde.deserialize(bin_response, worker=self)
+            # Step 4: deserialize the response
+            response = sy.serde.deserialize(bin_response, worker=self)
 
         return response
 

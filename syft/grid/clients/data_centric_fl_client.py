@@ -1,16 +1,15 @@
 import json
 import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
-import logging
-
-logging.getLogger().setLevel(logging.INFO)
 
 from typing import Union
 from urllib.parse import urlparse
 
-import pyarrow.flight
-import pyarrow as pa
-import pandas as pd
+
+import logging
+
+logging.getLogger().setLevel(logging.WARNING)
+
 
 # Syft imports
 import syft as sy
@@ -150,86 +149,8 @@ class DataCentricFLClient(WebsocketClientWorker):
         Returns:
             node_response (dict) : response payload.
         """
-        # self.ws.send(json.dumps(message))
-        # return json.loads(self.ws.recv())
-        logging.info(f"id {id} at port {self.port} is sending json")
-
-        bin_message = json.dumps(message).encode("utf-8")
-        # bin_response = self._forward_to_flight_server_worker(bin_message)
-        # return json.loads(bin_response.decode("utf-8"))
-        record_batch = pa.RecordBatch.from_arrays([pa.array([bin_message])], names=[""])
-        writer, reader = self.client.do_put(
-            pyarrow.flight.FlightDescriptor.for_command("json"), record_batch.schema
-        )
-        writer.write_batch(record_batch)
-        # The server checks the command and deserializes on the fly
-
-        # We return python bytes and not a pyarrow Buffer
-        r = reader.read()
-        # logging.info(f"Reading response of type {type(r)}: {r}")
-
-        response = None
-        if r is not None:
-            response = json.loads(r.to_pybytes().decode("utf-8"))
-            # logging.info(f"Deser response: {response}")
-        else:
-            logging.info("No response")
-            # response = None
-        writer.close()
-        logging.info(f"Received json")
-
-        return response
-
-    def _shoot_array_to_flight_server_worker(self, array, fss_op) -> bin:
-        """
-        Sends a numpy array in an optimized way.
-        The server will receive the array and stuff it right into the crypto store.
-        """
-
-        # TODO: harder for matmul, fss masks, because they have weird shapes.
-        # TODO: wrap nicely with a message
-        # TODO: can we build a Table/Record with even less overhead?
-
-        logging.info(
-            f"Shooting {fss_op} of shape {array.shape}  and type {array.dtype}: \n  {array}"
-        )
-        t = pa.Table.from_pandas(pd.DataFrame(array))
-
-        writer, reader = self.client.do_put(
-            pyarrow.flight.FlightDescriptor.for_command(fss_op), t.schema
-        )
-        writer.write_table(t)
-        writer.close()
-        logging.info("No need to wait for a response.")
-
-    def _forward_to_flight_server_worker(self, message: bin, command="") -> bin:
-        """Send a bin message to a remote node and receive the response.
-
-        Args:
-            message (bytes) : message payload.
-        Returns:
-            node_response (bytes) : response payload.
-        """
-
-        logging.info(f"id {id} at port {self.port} is sending {len(message)} bytes")
-
-        # The input has to be bytes, not a buffer, to be converted into an array.
-        # TODO: check more efficient methods?
-        record_batch = pa.RecordBatch.from_arrays([pa.array([message])], names=[""])
-        writer, reader = self.client.do_put(
-            pyarrow.flight.FlightDescriptor.for_command(command), record_batch.schema
-        )
-        writer.write_batch(record_batch)
-        # We return python bytes and not a pyarrow Buffer
-        r = reader.read()
-        if r is not None:
-            response = r.to_pybytes()
-        else:
-            reponse = None
-        writer.close()
-        logging.info("Received bytes")
-
-        return response
+        self.ws.send(json.dumps(message))
+        return json.loads(self.ws.recv())
 
     def _forward_to_websocket_server_worker_arrow(self, message: bin) -> bin:
         """Send a bin message to a remote node and receive the response.

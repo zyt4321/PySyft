@@ -35,21 +35,28 @@ def run(args):
     hook = sy.TorchHook(torch)
 
     if args.websockets:
-        WORKER_VERBOSE = False
-        alice = DataCentricFLClient(
-            hook, "grpc+tcp://localhost:7600", id="alice", verbose=WORKER_VERBOSE
-        )
-        bob = DataCentricFLClient(
-            hook, "grpc+tcp://localhost:7601", id="bob", verbose=WORKER_VERBOSE
-        )
-        crypto_provider = DataCentricFLClient(
-            hook, "grpc+tcp://localhost:7602", id="crypto_provider", verbose=WORKER_VERBOSE
-        )
+        print(f"Websocket workers.")
+        alice = DataCentricFLClient(hook, "ws://localhost:7600")
+        bob = DataCentricFLClient(hook, "ws://localhost:7601")
+        crypto_provider = DataCentricFLClient(hook, "ws://localhost:7602")
 
-        # alice = DataCentricFLClient(hook, "ws://localhost:7600")
-        # bob = DataCentricFLClient(hook, "ws://localhost:7601")
-        # crypto_provider = DataCentricFLClient(hook, "ws://localhost:7602")
+        my_grid = sy.PrivateGridNetwork(alice, bob, crypto_provider)
+        sy.local_worker.object_store.garbage_delay = 1
 
+    elif args.flight:
+        print(f"Arrow Flight workers.")
+
+        from syft.grid.clients.data_centric_fl_client_flight import DataCentricFLClientFlight
+
+        alice = DataCentricFLClientFlight(
+            hook, "grpc+tcp://localhost:7600", id="alice", verbose=args.workers_verbose
+        )
+        bob = DataCentricFLClientFlight(
+            hook, "grpc+tcp://localhost:7601", id="bob", verbose=args.workers_verbose
+        )
+        crypto_provider = DataCentricFLClientFlight(
+            hook, "grpc+tcp://localhost:7602", id="crypto_provider", verbose=args.workers_verbose
+        )
         my_grid = sy.PrivateGridNetwork(alice, bob, crypto_provider)
         sy.local_worker.object_store.garbage_delay = 1
 
@@ -203,7 +210,15 @@ if __name__ == "__main__":
         action="store_true",
     )
 
+    parser.add_argument(
+        "--flight",
+        help="use FlightGrid nodes instead of a virtual network. (nodes are launched automatically)",
+        action="store_true",
+    )
+
     parser.add_argument("--verbose", help="show extra information and metrics", action="store_true")
+
+    parser.add_argument("--workers_verbose", help="show workers logs", action="store_true")
 
     parser.add_argument(
         "--log_interval",
@@ -252,6 +267,8 @@ if __name__ == "__main__":
         preprocess = cmd_args.preprocess
         websockets = cmd_args.websockets
         verbose = cmd_args.verbose
+        flight = cmd_args.flight
+        workers_verbose = cmd_args.workers_verbose
 
         train = cmd_args.train
         n_train_items = -1 if cmd_args.train else cmd_args.batch_size
@@ -277,8 +294,8 @@ if __name__ == "__main__":
 
     args = Arguments()
 
-    if args.websockets:
-        print("Launching the websocket workers...")
+    if args.websockets or args.flight:
+        print(f"Launching the workers...")
 
         def kill_processes(worker_processes):
             for worker_process in worker_processes:
@@ -289,6 +306,12 @@ if __name__ == "__main__":
                 except ProcessLookupError:
                     print(f"COULD NOT KILL PROCESS {pid}")
 
+        workers = (
+            ["alice", "bob", "crypto_provider"]
+            if args.websockets
+            else ["alice_flight", "bob_flight", "crypto_provider_flight"]
+        )
+
         worker_processes = [
             subprocess.Popen(
                 f"./scripts/launch_{worker}.sh",
@@ -297,7 +320,7 @@ if __name__ == "__main__":
                 preexec_fn=os.setsid,
                 executable="/bin/bash",
             )
-            for worker in ["alice", "bob", "crypto_provider"]
+            for worker in workers
         ]
         time.sleep(7)
         try:
