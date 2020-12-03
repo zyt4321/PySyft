@@ -1,6 +1,8 @@
 import asyncio
 import math
-import multiprocessing
+
+# import multiprocessing
+from ray.util import multiprocessing
 import torch as th
 import logging
 
@@ -9,7 +11,14 @@ from syft.exceptions import EmptyCryptoPrimitiveStoreError
 from syft.generic.utils import allow_command
 from syft.generic.utils import remote
 
-from syft.frameworks.torch.mpc.fss import N_CORES
+# from syft.frameworks.torch.mpc.fss import N_CORES
+import pyarrow as pa
+
+N_CORES = 1
+from itertools import starmap
+
+# pa.set_cpu_count(8)
+# pa.set_cpu_count(1)
 
 from .cuda.tensor import CUDALongTensor
 
@@ -125,11 +134,20 @@ def spdz_compute(
                     kwargs_,
                 )
                 multiprocessing_args.append(process_args)
-            p = multiprocessing.Pool()
-            logging.info("Starting pool")
-            partitions = p.starmap(triple_mat_mul, multiprocessing_args)
-            p.close()
-            logging.info("Stopping pool.")
+            # p = multiprocessing.Pool()
+            # logging.info("Starting pool")
+            # logging.info(
+            #     f"Args : {len(multiprocessing_args)} args looking like {multiprocessing_args[0][0:2]}"
+            # )
+            # # logging.info(f"CPU count: {multiprocessing.cpu_count()}")
+            # logging.info(f"Arrow cpu: {pa.cpu_count()}")
+
+            # partitions = p.starmap(triple_mat_mul, multiprocessing_args)
+            # p.close()
+            # logging.info("Stopping pool.")
+
+            partitions = starmap(triple_mat_mul, multiprocessing_args)
+
             partitions = sorted(partitions, key=lambda k: k[0])
             delta_b = th.cat([partition[1] for partition in partitions])
             a_epsilon = th.cat([partition[2] for partition in partitions])

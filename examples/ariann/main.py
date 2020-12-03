@@ -35,11 +35,15 @@ def run(args):
     hook = sy.TorchHook(torch)
 
     if args.websockets:
-
-        alice = DataCentricFLClient(hook, "grpc+tcp://localhost:7600", id="alice")
-        bob = DataCentricFLClient(hook, "grpc+tcp://localhost:7601", id="bob")
+        WORKER_VERBOSE = False
+        alice = DataCentricFLClient(
+            hook, "grpc+tcp://localhost:7600", id="alice", verbose=WORKER_VERBOSE
+        )
+        bob = DataCentricFLClient(
+            hook, "grpc+tcp://localhost:7601", id="bob", verbose=WORKER_VERBOSE
+        )
         crypto_provider = DataCentricFLClient(
-            hook, "grpc+tcp://localhost:7602", id="crypto_provider"
+            hook, "grpc+tcp://localhost:7602", id="crypto_provider", verbose=WORKER_VERBOSE
         )
 
         # alice = DataCentricFLClient(hook, "ws://localhost:7600")
