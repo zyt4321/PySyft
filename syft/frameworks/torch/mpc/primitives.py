@@ -176,11 +176,18 @@ class PrimitiveStorage:
             worker_types_primitives[worker][op] = worker_primitives
 
         for i, worker in enumerate(workers):
-            worker_message = self._owner.create_worker_command_message(
-                "feed_crypto_primitive_store", None, worker_types_primitives[worker]
-            )
+
+            # TODO: enable arrow route in the server at least
             # self._owner.send_msg_arrow(worker_message, worker)
-            self._owner.send_msg(worker_message, worker)
+            if op in ["fss_eq", "fss_comp"]:
+                self._owner.shoot_array(
+                    worker_types_primitives[worker][op], fss_op=op, location=worker
+                )
+            else:
+                worker_message = self._owner.create_worker_command_message(
+                    "feed_crypto_primitive_store", None, worker_types_primitives[worker]
+                )
+                self._owner.send_msg(worker_message, worker)
 
     def add_primitives(self, types_primitives: dict):
         """

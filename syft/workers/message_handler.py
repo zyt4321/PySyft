@@ -1,5 +1,6 @@
 from typing import List
 from typing import Union
+import logging
 
 import syft as sy
 from syft import codes
@@ -51,7 +52,9 @@ class BaseMessageHandler(AbstractMessageHandler):
         }
 
     def execute_tensor_command(self, cmd: TensorCommandMessage) -> PointerTensor:
+        logging.info(f"Command: {cmd.action}")
         if isinstance(cmd.action, ComputationAction):
+            logging.info("Computation")
             return self.execute_computation_action(cmd.action)
         else:
             return self.execute_communication_action(cmd.action)

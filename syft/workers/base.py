@@ -327,7 +327,8 @@ class BaseWorker(AbstractWorker):
             The deserialized form of message from the worker at specified
             location.
         """
-        if self.verbose:
+        # if self.verbose:
+        if True:
             print(f"worker {self} sending {message} to {location}")
 
         strategy = None
@@ -343,11 +344,8 @@ class BaseWorker(AbstractWorker):
 
         return response
 
-    def shoot_numpy_array(self, array, location: "BaseWorker"):
-
-        self._shoot_numpy_array(array, location)
-        # We don't care about the response
-        return
+    def shoot_array(self, array, fss_op: str, location: "DataCentricFLClient"):
+        location._shoot_array_to_flight_server_worker(array, fss_op)
 
     def send_msg_arrow(self, message: Message, location: "BaseWorker") -> object:
         """Implements the logic to send messages.
@@ -371,11 +369,11 @@ class BaseWorker(AbstractWorker):
         if self.verbose:
             print(f"worker {self} sending {message} to {location}")
 
-        # strat = self.arrow_serialize
+        strat = self.arrow_serialize
 
         # Step 1: serialize the message to a binary
-        # bin_message = sy.serde.serialize(message, worker=self, strategy=strat)
-        bin_message = pyarrow.serialize(message)
+        bin_message = sy.serde.serialize(message, worker=self, strategy=strat)
+        # bin_message = pyarrow.serialize(message)
 
         # Step 2: send the message and wait for a response
         bin_response = self._send_msg_arrow(bin_message, location)
@@ -421,7 +419,10 @@ class BaseWorker(AbstractWorker):
         response = None
         for handler in self.message_handlers:
             if handler.supports(msg):
+                logging.info(f"Handling {type(msg)} with {handler}")
                 response = handler.handle(msg)
+                logging.info("Finished handling.")
+
                 break
         # TODO(karlhigley): Raise an exception if no handler is found
 
@@ -445,16 +446,16 @@ class BaseWorker(AbstractWorker):
             A binary message response.
         """
 
-        logger.info(f"Base worker receiving an arrow: {bin_message}")
+        # logger.info(f"Base worker receiving an arrow: {bin_message}")
 
-        logger.info(f"Homemade deserialized: {pyarrow.deserialize(bin_message)}")
+        # logger.info(f"Homemade deserialized: {pyarrow.deserialize(bin_message)}")
 
         strat = self.arrow_deserialize
 
         # Step 0: deserialize message
         msg = sy.serde.deserialize(bin_message, worker=self, strategy=strat)
 
-        logger.info(f"Deserialized: {msg}")
+        # logger.info(f"Deserialized: {msg}")
 
         # Step 1: save message and/or log it out
         if self.log_msgs:

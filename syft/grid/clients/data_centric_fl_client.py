@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 
 import pyarrow.flight
 import pyarrow as pa
+import pandas as pd
 
 # Syft imports
 import syft as sy
@@ -151,7 +152,7 @@ class DataCentricFLClient(WebsocketClientWorker):
         """
         # self.ws.send(json.dumps(message))
         # return json.loads(self.ws.recv())
-        # logging.info(f"id {id} at port {self.port} is sending json")
+        logging.info(f"id {id} at port {self.port} is sending json")
 
         bin_message = json.dumps(message).encode("utf-8")
         # bin_response = self._forward_to_flight_server_worker(bin_message)
@@ -175,8 +176,31 @@ class DataCentricFLClient(WebsocketClientWorker):
             logging.info("No response")
             # response = None
         writer.close()
+        logging.info(f"Received json")
 
         return response
+
+    def _shoot_array_to_flight_server_worker(self, array, fss_op) -> bin:
+        """
+        Sends a numpy array in an optimized way.
+        The server will receive the array and stuff it right into the crypto store.
+        """
+
+        # TODO: harder for matmul, fss masks, because they have weird shapes.
+        # TODO: wrap nicely with a message
+        # TODO: can we build a Table/Record with even less overhead?
+
+        logging.info(
+            f"Shooting {fss_op} of shape {array.shape}  and type {array.dtype}: \n  {array}"
+        )
+        t = pa.Table.from_pandas(pd.DataFrame(array))
+
+        writer, reader = self.client.do_put(
+            pyarrow.flight.FlightDescriptor.for_command(fss_op), t.schema
+        )
+        writer.write_table(t)
+        writer.close()
+        logging.info("No need to wait for a response.")
 
     def _forward_to_flight_server_worker(self, message: bin) -> bin:
         """Send a bin message to a remote node and receive the response.
@@ -186,6 +210,9 @@ class DataCentricFLClient(WebsocketClientWorker):
         Returns:
             node_response (bytes) : response payload.
         """
+
+        logging.info(f"id {id} at port {self.port} is sending {len(message)} bytes")
+
         # The input has to be bytes, not a buffer, to be converted into an array.
         # TODO: check more efficient methods?
         record_batch = pa.RecordBatch.from_arrays([pa.array([message])], names=[""])
@@ -200,6 +227,8 @@ class DataCentricFLClient(WebsocketClientWorker):
         else:
             reponse = None
         writer.close()
+        logging.info("Received bytes")
+
         return response
 
     def _forward_to_websocket_server_worker_arrow(self, message: bin) -> bin:

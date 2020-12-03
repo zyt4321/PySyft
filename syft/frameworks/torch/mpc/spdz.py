@@ -2,6 +2,7 @@ import asyncio
 import math
 import multiprocessing
 import torch as th
+import logging
 
 import syft as sy
 from syft.exceptions import EmptyCryptoPrimitiveStoreError
@@ -31,6 +32,7 @@ def spdz_mask(x, y, op: str, dtype: str, torch_dtype: th.dtype, field: int, kwar
     Returns:
         The shares of delta and epsilon
     """
+    logging.info(f"Building spdz mask for {op}")
     a, b, c = x.owner.crypto_store.get_keys(
         op=op,
         shapes=(x.shape, y.shape),
@@ -79,6 +81,8 @@ def spdz_compute(
     Returns:
         The shares of the result of the multiplication
     """
+    logging.info(f"Compute spdz for {op}")
+
     a, b, c = delta.owner.crypto_store.get_keys(
         op=op,
         shapes=(delta.shape, epsilon.shape),
@@ -122,8 +126,10 @@ def spdz_compute(
                 )
                 multiprocessing_args.append(process_args)
             p = multiprocessing.Pool()
+            logging.info("Starting pool")
             partitions = p.starmap(triple_mat_mul, multiprocessing_args)
             p.close()
+            logging.info("Stopping pool.")
             partitions = sorted(partitions, key=lambda k: k[0])
             delta_b = th.cat([partition[1] for partition in partitions])
             a_epsilon = th.cat([partition[2] for partition in partitions])
@@ -157,6 +163,7 @@ def spdz_mul(cmd, x, y, kwargs_, crypto_provider, dtype, torch_dtype, field):
     Return:
         an AdditiveSharingTensor
     """
+    logging.info(f"Abstract spdz mul for {cmd}")
 
     op = cmd
     locations = x.locations
