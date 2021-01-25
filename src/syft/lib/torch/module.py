@@ -333,12 +333,18 @@ class Module:
                 klass = getattr(sys.modules[".".join(module_parts)], klass_name)
                 repr_ptr = module.extra_repr()
 
+                logger.debug(reason)
+                print(reason)
+                logger.debug(timeout_secs)
+                print(timeout_secs)
                 module_repr = repr_ptr.get(
                     request_block=request_block,
                     name=request_name,
                     reason=reason,
                     timeout_secs=timeout_secs,
                 )
+                print("Module repr not get")
+                logger.debug("Module repr not get")
 
                 if module_repr is None:
                     print(
