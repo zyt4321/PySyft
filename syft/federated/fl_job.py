@@ -62,9 +62,10 @@ class FLJob(EventEmitter):
                 worker_id, request_key, protocol_id
             )
 
-    def start(self):
+    def start(self, *args):
         try:
             speed_info = self.grid_worker.get_connection_speed(self.fl_client.worker_id)
+            print(speed_info)
             cycle_request_response = self.grid_worker.cycle_request(
                 worker_id=self.fl_client.worker_id,
                 model_name=self.model_name,
@@ -72,10 +73,12 @@ class FLJob(EventEmitter):
                 speed_info=speed_info,
             )
             cycle_params = cycle_request_response["data"]
+            print(cycle_params)
+            
 
             if cycle_params["status"] == ModelCentricFLWorker.CYCLE_STATUS_ACCEPTED:
                 self._init_cycle(cycle_params)
-                self.trigger(self.EVENT_ACCEPTED, self)
+                self.trigger(self.EVENT_ACCEPTED, self, *args)
             elif cycle_params["status"] == ModelCentricFLWorker.CYCLE_STATUS_REJECTED:
                 self.trigger(self.EVENT_REJECTED, self, cycle_params.get("timeout", None))
         except GridError as e:
@@ -83,11 +86,11 @@ class FLJob(EventEmitter):
 
     def report(self, updated_model_params: list):
         # Calc params diff
-        orig_params = self.model.tensors()
-        diff_params = [orig_params[i] - updated_model_params[i] for i in range(len(orig_params))]
+        # orig_params = self.model.tensors()
+        # diff_params = [orig_params[i] - updated_model_params[i] for i in range(len(orig_params))]
 
         # Wrap diff in State
-        diff_ph = [PlaceHolder().instantiate(t) for t in diff_params]
+        diff_ph = [PlaceHolder().instantiate(t) for t in updated_model_params]
         diff = State(state_placeholders=diff_ph)
 
         response = self.grid_worker.report(
@@ -95,4 +98,6 @@ class FLJob(EventEmitter):
             request_key=self.cycle_params["request_key"],
             diff=diff,
         )
+        print(self.fl_client.worker_id)
+        print(self.cycle_params["request_key"])
         return response
